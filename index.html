@@ -64,10 +64,20 @@
         <span>Shoot</span>
         <span>Drone Chase</span>
       </div>
-      <div class="leaderboard-card" id="homeLeaderboardCard">
+      <div class="leaderboard-actions">
+  <button type="button" id="showHomeLeaderboardBtn" class="leaderboard-show-btn">
+    Show Champions
+  </button>
+</div>
+
+<div class="leaderboard-card" id="homeLeaderboardCard">
   <button type="button" class="leaderboard-close" aria-label="Close leaderboard">×</button>
   <h3>Local Champions</h3>
   <ol id="homeLeaderboard"></ol>
+
+  <button type="button" class="leaderboard-clear">
+    Clear Scores
+  </button>
 </div>
     </div>
   </section>
@@ -82,10 +92,18 @@
 <p>Surya Shards: <b id="finalShards">0</b></p>
 <p>Difficulty: <b id="finalDifficulty">Normal</b></p>
 
+<button type="button" id="showGameOverLeaderboardBtn" class="leaderboard-show-btn">
+  Show Top Runs
+</button>
+
 <div class="leaderboard-card gameover-leaderboard" id="gameOverLeaderboardCard">
   <button type="button" class="leaderboard-close" aria-label="Close leaderboard">×</button>
   <h3>Top Runs</h3>
   <ol id="gameOverLeaderboard"></ol>
+
+  <button type="button" class="leaderboard-clear">
+    Clear Scores
+  </button>
 </div>
       <div>High Score: <b id="highScore">0</b> m</div>
       <div>Mode: <b id="difficultyText">Normal</b></div>
@@ -138,16 +156,16 @@
 
   <!-- GAME SCRIPT -->
 
-<script src="js/config.js?v=mod3"></script>
-<script src="js/state.js?v=mod3"></script>
-<script src="js/ui.js?v=mod3"></script>
-<script src="js/leaderboard.js?v=mod3"></script>
-<script src="js/world.js?v=mod3"></script>
-<script src="js/player.js?v=mod3"></script>
-<script src="js/enemies.js?v=mod3"></script>
-<script src="js/combat.js?v=mod3"></script>
-<script src="js/powerups.js?v=mod3"></script>
-<script src="js/main.js?v=mod3"></script>
+<script src="js/config.js?v=mod4"></script>
+<script src="js/state.js?v=mod4"></script>
+<script src="js/ui.js?v=mod4"></script>
+<script src="js/leaderboard.js?v=mod4"></script>
+<script src="js/world.js?v=mod4"></script>
+<script src="js/player.js?v=mod4"></script>
+<script src="js/enemies.js?v=mod4"></script>
+<script src="js/combat.js?v=mod4"></script>
+<script src="js/powerups.js?v=mod4"></script>
+<script src="js/main.js?v=mod4"></script>
 
 </body>
 </html>
