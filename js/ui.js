@@ -13,11 +13,13 @@ const runnerNameText = document.getElementById("runnerName");
 const distanceText = document.getElementById("distance");
 const shardsText = document.getElementById("shards");
 const highScoreText = document.getElementById("highScore");
+const difficultyText = document.getElementById("difficultyText");
 const coreHealthText = document.getElementById("coreHealth");
 const shieldStatusText = document.getElementById("shieldStatus");
 
 const finalDistanceText = document.getElementById("finalDistance");
 const finalShardsText = document.getElementById("finalShards");
+const finalDifficultyText = document.getElementById("finalDifficulty");
 const abilityText = document.getElementById("abilityText");
 const missionText = document.getElementById("missionText");
 
@@ -29,6 +31,9 @@ const shootBtn = document.getElementById("shootBtn");
 
 const bossUI = document.getElementById("bossUI");
 const bossHealthFill = document.getElementById("bossHealthFill");
+
+const homeLeaderboard = document.getElementById("homeLeaderboard");
+const gameOverLeaderboard = document.getElementById("gameOverLeaderboard");
 
 if (highScoreText) {
   highScoreText.textContent = highScore;
