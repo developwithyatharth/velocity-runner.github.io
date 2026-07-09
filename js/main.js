@@ -1,0 +1,383 @@
+/* main.js
+   Game initialization, update loop, controls
+*/
+
+function startGame() {
+  if (typeof THREE === "undefined") {
+    alert("Three.js is not loading. Check Three.js CDN in index.html.");
+    return;
+  }
+
+  runnerName =
+    runnerNameInput && runnerNameInput.value.trim()
+      ? runnerNameInput.value.trim()
+      : "Aarav Astra";
+
+  if (runnerNameText) {
+    runnerNameText.textContent = runnerName;
+  }
+
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+
+  showScreen(gameScreen);
+
+  distance = 0;
+  shards = 0;
+  speed = START_SPEED;
+
+  coreHealth = 100;
+  invincibleTimer = 0;
+  shieldActive = false;
+
+  currentLane = 1;
+  playerY = 1;
+  velocityY = 0;
+  isJumping = false;
+  isSliding = false;
+  slideTimer = 0;
+
+  gameRunning = true;
+  gamePaused = false;
+  gameOver = false;
+
+  obstacles = [];
+  shardItems = [];
+  roadTiles = [];
+  buildings = [];
+  rainDrops = [];
+  bullets = [];
+  explosions = [];
+  empShots = [];
+  bossLasers = [];
+  powerUps = [];
+
+  spawnTimer = 0;
+  shardTimer = 0;
+  powerUpTimer = 0;
+
+  droneAlive = true;
+  droneRespawnTimer = 0;
+  dronesDestroyed = 0;
+  droneShootTimer = 130;
+
+  bossActive = false;
+  bossHealth = 100;
+  bossMaxHealth = 100;
+  nextBossDistance = BOSS_DISTANCE_GAP;
+  bossAttackTimer = 90;
+
+  shootCooldown = 0;
+  messageTimer = 0;
+
+  updateShootButton();
+  updateCoreHealth();
+  updateShieldStatus();
+  updateBossUI();
+
+  initThree();
+  animate();
+}
+
+window.startGame = startGame;
+
+function initThree() {
+  const canvas = document.getElementById("gameCanvas");
+
+  if (!canvas) {
+    alert("gameCanvas not found in index.html.");
+    return;
+  }
+
+  if (renderer) {
+    renderer.dispose();
+  }
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x02030a);
+  scene.fog = new THREE.FogExp2(0x061025, 0.01);
+
+  camera = new THREE.PerspectiveCamera(
+    68,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+
+  camera.position.set(0, 5.2, 9.2);
+  camera.lookAt(0, 0.45, -13);
+
+  renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true
+  });
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+
+  const ambient = new THREE.AmbientLight(0x9feaff, 1.5);
+  scene.add(ambient);
+
+  const bharatGlow = new THREE.HemisphereLight(0x00eaff, 0xffaa00, 1.7);
+  scene.add(bharatGlow);
+
+  const mainLight = new THREE.DirectionalLight(0xffffff, 1.4);
+  mainLight.position.set(5, 12, 8);
+  mainLight.castShadow = true;
+  scene.add(mainLight);
+
+  const cyanLight = new THREE.PointLight(0x00f5ff, 3.5, 55);
+  cyanLight.position.set(-5, 5, -8);
+  scene.add(cyanLight);
+
+  const goldLight = new THREE.PointLight(0xffd166, 3.2, 55);
+  goldLight.position.set(0, 5, -22);
+  scene.add(goldLight);
+
+  const purpleLight = new THREE.PointLight(0x8f2cff, 3.2, 55);
+  purpleLight.position.set(5, 5, -35);
+  scene.add(purpleLight);
+
+  roadGroup = new THREE.Group();
+  obstacleGroup = new THREE.Group();
+  shardGroup = new THREE.Group();
+  cityGroup = new THREE.Group();
+  rainGroup = new THREE.Group();
+  bulletGroup = new THREE.Group();
+  empGroup = new THREE.Group();
+
+  scene.add(roadGroup);
+  scene.add(obstacleGroup);
+  scene.add(shardGroup);
+  scene.add(cityGroup);
+  scene.add(rainGroup);
+  scene.add(bulletGroup);
+  scene.add(empGroup);
+
+  createRoad();
+  createPlayer();
+  createDrone();
+  createBoss();
+  createCity();
+  createRain();
+  createSkySymbols();
+
+  window.addEventListener("resize", onResize);
+}
+
+function updateGame() {
+  if (!gameRunning || gamePaused || gameOver) return;
+
+  distance += speed;
+  speed += 0.00015;
+
+  if (messageTimer > 0) {
+    messageTimer--;
+  }
+
+  if (shootCooldown > 0) {
+    shootCooldown--;
+    updateShootButton();
+  }
+
+  if (distanceText) distanceText.textContent = Math.floor(distance);
+  if (shardsText) shardsText.textContent = shards;
+
+  updatePlayer();
+  updateDrone();
+  updateMovingWorld();
+
+  spawnTimer++;
+  shardTimer++;
+  powerUpTimer++;
+
+  if (spawnTimer > Math.max(45, 110 - distance / 80)) {
+    spawnObstacle();
+    spawnTimer = 0;
+  }
+
+  if (shardTimer > 28) {
+    spawnShard();
+    shardTimer = 0;
+  }
+
+  if (powerUpTimer > 420) {
+    spawnPowerUp();
+    powerUpTimer = 0;
+  }
+
+  if (!bossActive && distance >= nextBossDistance) {
+    startBossEvent();
+  }
+
+  updateBoss();
+  updateBullets();
+  updateEMPShots();
+  updateExplosions();
+  updateObstacles();
+  updateShards();
+  updatePowerUps();
+  updateMissionText();
+
+  camera.position.x += (player.position.x * 0.3 - camera.position.x) * 0.08;
+  camera.position.y = 5.2;
+  camera.position.z = 9.2;
+  camera.lookAt(player.position.x, 0.45, -13);
+}
+
+function updateMissionText() {
+  if (!missionText) return;
+  if (messageTimer > 0) return;
+
+  if (bossActive) {
+    missionText.textContent = "Boss active: dodge lasers and shoot";
+    return;
+  }
+
+  if (!droneAlive) return;
+
+  if (droneShootTimer < 35) {
+    missionText.textContent = "Warning: Drone EMP charging";
+  } else if (Math.floor(distance) > 0 && Math.floor(distance) % 1000 < 4) {
+    missionText.textContent = "Maharakshak Titan Signal Detected";
+  } else if (Math.floor(distance) > 500 && Math.floor(distance) % 500 < 4) {
+    missionText.textContent = "Trinetra Drone is learning your speed";
+  } else {
+    missionText.textContent = "Protect the Surya Core";
+  }
+}
+
+function animate() {
+  if (!gameRunning) return;
+
+  animationId = requestAnimationFrame(animate);
+  updateGame();
+
+  if (renderer && scene && camera) {
+    renderer.render(scene, camera);
+  }
+}
+
+function endGame() {
+  if (gameOver) return;
+
+  gameOver = true;
+  gameRunning = false;
+
+  const finalDistance = Math.floor(distance);
+
+  if (finalDistance > highScore) {
+    highScore = finalDistance;
+    localStorage.setItem("velocityRunnerHighScore", highScore);
+  }
+
+  if (player) {
+    player.visible = true;
+  }
+
+  if (finalDistanceText) finalDistanceText.textContent = finalDistance;
+  if (finalShardsText) finalShardsText.textContent = shards;
+  if (highScoreText) highScoreText.textContent = highScore;
+
+  showScreen(gameOverScreen);
+}
+
+function goHome() {
+  gameRunning = false;
+  gamePaused = false;
+  gameOver = false;
+
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+
+  showScreen(homeScreen);
+}
+
+function togglePause() {
+  if (!gameRunning || gameOver) return;
+
+  gamePaused = !gamePaused;
+
+  if (pauseBtn) {
+    pauseBtn.textContent = gamePaused ? "Resume" : "Pause";
+  }
+}
+
+function onResize() {
+  if (!camera || !renderer) return;
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+/* Controls */
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") moveLeft();
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") moveRight();
+  if (e.key === "ArrowUp" || e.key === " " || e.key.toLowerCase() === "w") jump();
+  if (e.key === "ArrowDown" || e.key.toLowerCase() === "s") slide();
+  if (e.key === "Shift") dash();
+  if (e.key.toLowerCase() === "f") shoot();
+});
+
+let touchStartX = 0;
+let touchStartY = 0;
+let lastTap = 0;
+
+document.addEventListener("touchstart", function (e) {
+  const t = e.changedTouches[0];
+
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+
+  const now = Date.now();
+
+  if (now - lastTap < 300) {
+    dash();
+  }
+
+  lastTap = now;
+});
+
+document.addEventListener("touchend", function (e) {
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 40) moveRight();
+    if (dx < -40) moveLeft();
+  } else {
+    if (dy < -40) jump();
+    if (dy > 40) slide();
+  }
+});
+
+/* Button Events */
+
+if (startBtn) {
+  startBtn.addEventListener("click", startGame);
+}
+
+if (pauseBtn) {
+  pauseBtn.addEventListener("click", togglePause);
+}
+
+if (restartBtn) {
+  restartBtn.addEventListener("click", startGame);
+}
+
+if (homeBtn) {
+  homeBtn.addEventListener("click", goHome);
+}
+
+if (shootBtn) {
+  shootBtn.addEventListener("click", shoot);
+}
