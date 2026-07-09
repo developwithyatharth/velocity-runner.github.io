@@ -137,6 +137,7 @@ function createCity() {
       new THREE.BoxGeometry(width, height, depth),
       buildingMats[i % buildingMats.length]
     );
+
     tower.position.y = height / 2;
     building.add(tower);
 
@@ -154,6 +155,7 @@ function createCity() {
       new THREE.TorusGeometry(width * 0.36, 0.025, 10, 28),
       goldWindowMat
     );
+
     topRing.position.set(0, height + 0.25, 0);
     topRing.rotation.x = Math.PI / 2;
     building.add(topRing);
