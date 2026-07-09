@@ -111,7 +111,10 @@ function slide() {
 
   isSliding = true;
   slideTimer = 34;
-  player.scale.y = 0.55;
+
+  if (player) {
+    player.scale.y = 0.55;
+  }
 }
 
 function dash() {
@@ -131,6 +134,8 @@ function dash() {
 }
 
 function updatePlayer() {
+  if (!player) return;
+
   player.position.x += (lanes[currentLane] - player.position.x) * 0.18;
 
   if (isJumping) {
