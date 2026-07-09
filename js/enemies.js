@@ -56,7 +56,10 @@ function updateDrone() {
 
     if (droneShootTimer <= 0) {
       droneShootEMP();
-      droneShootTimer = Math.max(70, 150 - Math.floor(distance / 70));
+      droneShootTimer = Math.max(
+        55,
+        (150 - Math.floor(distance / 70)) / difficultySettings.droneAttackMultiplier
+      );
     }
   } else {
     droneRespawnTimer--;
@@ -130,7 +133,10 @@ function respawnDrone() {
   const side = Math.random() > 0.5 ? 1 : -1;
   drone.position.set(side * 2.8, 3.3, 1.8);
 
-  droneShootTimer = Math.max(80, 145 - Math.floor(distance / 80));
+  droneShootTimer = Math.max(
+    60,
+    (145 - Math.floor(distance / 80)) / difficultySettings.droneAttackMultiplier
+  );
 
   setMission("New drone incoming", 80);
 }
@@ -231,7 +237,10 @@ function updateBoss() {
 
   if (bossAttackTimer <= 0) {
     bossLaserAttack();
-    bossAttackTimer = Math.max(45, 95 - Math.floor(distance / 120));
+    bossAttackTimer = Math.max(
+      35,
+      (95 - Math.floor(distance / 120)) / difficultySettings.bossAttackMultiplier
+    );
   }
 
   updateBossLasers();
