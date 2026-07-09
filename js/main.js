@@ -2,16 +2,64 @@
    Game initialization, update loop, controls
 */
 
+function applyDifficultySettings(level) {
+  if (level === "easy") {
+    difficultySettings = {
+      startSpeed: 0.27,
+      obstacleMultiplier: 0.75,
+      droneAttackMultiplier: 0.8,
+      bossAttackMultiplier: 0.85
+    };
+  } else if (level === "hard") {
+    difficultySettings = {
+      startSpeed: 0.43,
+      obstacleMultiplier: 1.35,
+      droneAttackMultiplier: 1.35,
+      bossAttackMultiplier: 1.35
+    };
+  } else {
+    difficultySettings = {
+      startSpeed: START_SPEED,
+      obstacleMultiplier: 1,
+      droneAttackMultiplier: 1,
+      bossAttackMultiplier: 1
+    };
+  }
+}
+
 function startGame() {
   if (typeof THREE === "undefined") {
     alert("Three.js is not loading. Check Three.js CDN in index.html.");
     return;
   }
 
-  runnerName =
-    runnerNameInput && runnerNameInput.value.trim()
-      ? runnerNameInput.value.trim()
-      : "Aarav Astra";
+  const enteredName = runnerNameInput ? runnerNameInput.value.trim() : "";
+
+  if (enteredName === "") {
+    alert("Please enter your runner name before starting the game.");
+
+    if (runnerNameInput) {
+      runnerNameInput.focus();
+    }
+
+    return;
+  }
+
+  const difficultyValue = difficultySelect ? difficultySelect.value : "";
+
+  if (difficultyValue === "") {
+    alert("Please select difficulty before starting the game.");
+
+    if (difficultySelect) {
+      difficultySelect.focus();
+    }
+
+    return;
+  }
+
+  runnerName = enteredName;
+  selectedDifficulty = difficultyValue;
+  applyDifficultySettings(selectedDifficulty);
 
   if (runnerNameText) {
     runnerNameText.textContent = runnerName;
@@ -26,7 +74,7 @@ function startGame() {
 
   distance = 0;
   shards = 0;
-  speed = START_SPEED;
+  speed = difficultySettings.startSpeed;
 
   coreHealth = 100;
   invincibleTimer = 0;
@@ -165,6 +213,7 @@ function initThree() {
   createRain();
   createSkySymbols();
 
+  window.removeEventListener("resize", onResize);
   window.addEventListener("resize", onResize);
 }
 
@@ -194,7 +243,12 @@ function updateGame() {
   shardTimer++;
   powerUpTimer++;
 
-  if (spawnTimer > Math.max(45, 110 - distance / 80)) {
+  const obstacleDelay = Math.max(
+    38,
+    (110 - distance / 80) / difficultySettings.obstacleMultiplier
+  );
+
+  if (spawnTimer > obstacleDelay) {
     spawnObstacle();
     spawnTimer = 0;
   }
@@ -359,6 +413,28 @@ document.addEventListener("touchend", function (e) {
     if (dy > 40) slide();
   }
 });
+
+/* Start Button Validation */
+
+function checkStartReady() {
+  if (!runnerNameInput || !difficultySelect || !startBtn) return;
+
+  const hasName = runnerNameInput.value.trim().length > 0;
+  const hasDifficulty = difficultySelect.value !== "";
+
+  startBtn.disabled = !(hasName && hasDifficulty);
+  startBtn.classList.toggle("disabled", !(hasName && hasDifficulty));
+}
+
+if (runnerNameInput && difficultySelect && startBtn) {
+  startBtn.disabled = true;
+  startBtn.classList.add("disabled");
+
+  runnerNameInput.addEventListener("input", checkStartReady);
+  difficultySelect.addEventListener("change", checkStartReady);
+
+  checkStartReady();
+}
 
 /* Button Events */
 
