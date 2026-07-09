@@ -14,3 +14,5 @@ const START_SPEED = 0.34;
 const GRAVITY = -0.035;
 
 const BOSS_DISTANCE_GAP = 1000;
+const LEADERBOARD_KEY = "velocityRunnerLeaderboard";
+const LEADERBOARD_LIMIT = 5;
