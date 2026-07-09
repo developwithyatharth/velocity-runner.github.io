@@ -87,3 +87,16 @@ function renderLeaderboards() {
   renderLeaderboardList(homeLeaderboard);
   renderLeaderboardList(gameOverLeaderboard);
 }
+function setupLeaderboardCloseButtons() {
+  const closeButtons = document.querySelectorAll(".leaderboard-close");
+
+  closeButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      const card = button.closest(".leaderboard-card");
+
+      if (card) {
+        card.classList.add("leaderboard-hidden");
+      }
+    });
+  });
+}
