@@ -36,6 +36,20 @@ const homeLeaderboard = document.getElementById("homeLeaderboard");
 const gameOverLeaderboard = document.getElementById("gameOverLeaderboard");
 const showHomeLeaderboardBtn = document.getElementById("showHomeLeaderboardBtn");
 const showGameOverLeaderboardBtn = document.getElementById("showGameOverLeaderboardBtn");
+const gameLeaderboard =
+  document.getElementById("gameLeaderboard");
+
+const gameLeaderboardCard =
+  document.getElementById("gameLeaderboardCard");
+
+const showGameLeaderboardBtn =
+  document.getElementById("showGameLeaderboardBtn");
+
+const closeGameLeaderboardBtn =
+  document.getElementById("closeGameLeaderboardBtn");
+
+const clearGameLeaderboardBtn =
+  document.getElementById("clearGameLeaderboardBtn");
 
 if (highScoreText) {
   highScoreText.textContent = highScore;
