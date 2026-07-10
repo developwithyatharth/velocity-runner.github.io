@@ -43,7 +43,7 @@ let horizonMonument = null;
 ===================================================== */
 
 const NEO_GATE_COUNT = 12;
-const NEO_GATE_SPACING = 24;
+const NEO_GATE_SPACING = 46;
 
 const NEO_GATE_LOOP_DISTANCE =
   NEO_GATE_COUNT * NEO_GATE_SPACING;
@@ -146,7 +146,7 @@ function createNeoGates() {
     const gate = createSingleNeoGate(i);
 
     gate.position.z =
-      -34 - i * NEO_GATE_SPACING;
+      -55 - i * NEO_GATE_SPACING;
 
     neoGates.push(gate);
     neoGateGroup.add(gate);
