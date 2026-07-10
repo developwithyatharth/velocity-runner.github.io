@@ -206,6 +206,7 @@ function startBossEvent() {
     boss.position.set(0, 0, -28);
   }
 
+  triggerCameraShake(0.45);
   setMission("Boss Event: AI Guardian awakened", 120);
   updateBossUI();
 }
