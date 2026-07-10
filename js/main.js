@@ -29,7 +29,10 @@ function applyDifficultySettings(level) {
 
 function startGame() {
   if (typeof THREE === "undefined") {
-    alert("Three.js is not loading. Check Three.js CDN in index.html.");
+    alert(
+      "Three.js is not loading.\nCheck the Three.js CDN in index.html."
+    );
+
     return;
   }
 
