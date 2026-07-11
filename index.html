@@ -177,6 +177,12 @@
 
   <section id="gameScreen" class="screen">
 
+  <div
+    id="damageOverlay"
+    class="damage-overlay"
+  ></div>
+  <section id="gameScreen" class="screen">
+
     <!-- 3D GAME CANVAS -->
 
     <canvas id="gameCanvas"></canvas>
@@ -253,10 +259,22 @@
         <b id="difficultyText">Normal Warrior</b>
       </div>
 
-      <div class="core-stat">
-        Core Health:
-        <b id="coreHealth">100</b>%
-      </div>
+      <div id="coreHealthPanel" class="core-health-panel">
+  <div class="core-health-heading">
+    <span>Surya Core</span>
+
+    <span>
+      <b id="coreHealth">100</b>%
+    </span>
+  </div>
+
+  <div class="core-health-track">
+    <div
+      id="coreHealthFill"
+      class="core-health-fill"
+    ></div>
+  </div>
+</div>
 
       <div>
         Shield:
