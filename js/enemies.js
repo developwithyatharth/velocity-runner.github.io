@@ -899,76 +899,118 @@ function spawnObstacle() {
     return;
   }
 
-  const lane =
-    Math.floor(
-      Math.random() * 3
-    );
+  var lane =
+    typeof chooseBalancedObstacleLane ===
+      "function"
+      ? chooseBalancedObstacleLane()
+      : Math.floor(
+          Math.random() * 3
+        );
 
-  const type =
-    Math.random();
+  var obstacleType =
+    typeof chooseBalancedObstacleType ===
+      "function"
+      ? chooseBalancedObstacleType()
+      : "block";
 
-  let obstacle;
+  var obstacle;
 
-  if (type < 0.45) {
-    obstacle = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        1.35,
-        1.45,
-        1
-      ),
-      new THREE.MeshBasicMaterial({
-        color: 0xff0033
-      })
-    );
 
-    obstacle.userData.type =
-      "block";
+  /* =====================================================
+     SOLID BLOCK
+  ===================================================== */
+
+  if (obstacleType === "block") {
+    obstacle =
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          1.35,
+          1.45,
+          1
+        ),
+        new THREE.MeshStandardMaterial({
+          color: 0x6d071d,
+          emissive: 0xff0033,
+          emissiveIntensity: 0.34,
+          metalness: 0.4,
+          roughness: 0.4
+        })
+      );
 
     obstacle.position.y = 0.8;
-  } else if (type < 0.75) {
-    obstacle = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        1.6,
-        0.55,
-        1
-      ),
-      new THREE.MeshBasicMaterial({
-        color: 0xffd166
-      })
-    );
+  }
 
-    obstacle.userData.type =
-      "low";
+
+  /* =====================================================
+     LOW OBSTACLE — PLAYER MUST JUMP
+  ===================================================== */
+
+  else if (
+    obstacleType === "low"
+  ) {
+    obstacle =
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          1.6,
+          0.55,
+          1
+        ),
+        new THREE.MeshStandardMaterial({
+          color: 0x715616,
+          emissive: 0xffd166,
+          emissiveIntensity: 0.32,
+          metalness: 0.36,
+          roughness: 0.42
+        })
+      );
 
     obstacle.position.y = 0.5;
-  } else {
-    obstacle = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        2.25,
-        0.3,
-        1
-      ),
-      new THREE.MeshBasicMaterial({
-        color: 0xb14cff
-      })
-    );
+  }
 
-    obstacle.userData.type =
-      "slide";
+
+  /* =====================================================
+     HIGH BARRIER — PLAYER MUST SLIDE
+  ===================================================== */
+
+  else {
+    obstacle =
+      new THREE.Mesh(
+        new THREE.BoxGeometry(
+          2.25,
+          0.3,
+          1
+        ),
+        new THREE.MeshStandardMaterial({
+          color: 0x45116f,
+          emissive: 0xb14cff,
+          emissiveIntensity: 0.36,
+          metalness: 0.38,
+          roughness: 0.4
+        })
+      );
 
     obstacle.position.y = 2.05;
   }
 
+
+  obstacle.userData.type =
+    obstacleType;
+
+  obstacle.userData.laneIndex =
+    lane;
+
   obstacle.position.x =
     lanes[lane];
 
-  obstacle.position.z = -105;
+  obstacle.position.z =
+    -105;
+
+  obstacle.castShadow = true;
+  obstacle.receiveShadow = true;
 
   obstacles.push(obstacle);
   obstacleGroup.add(obstacle);
 }
-
-
 /* =========================================================
    UPDATE OBSTACLES
 ========================================================= */
