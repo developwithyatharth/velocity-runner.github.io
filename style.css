@@ -1109,3 +1109,38 @@ button:active {
     0 0 10px
     rgba(0, 245, 255, 0.8);
 }
+/* Keep the 3D canvas behind all game controls */
+
+#gameScreen {
+  position: relative;
+  overflow: hidden;
+}
+
+#gameCanvas {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  z-index: 0;
+}
+
+/* Keep interface elements above the canvas */
+
+#gameScreen .hud,
+#gameScreen .ability,
+#gameScreen .mission,
+#gameScreen .boss-ui,
+#gameScreen button,
+#gameScreen .leaderboard-card {
+  position: absolute;
+  z-index: 20;
+}
+
+.damage-overlay {
+  z-index: 30;
+  pointer-events: none;
+}
