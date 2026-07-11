@@ -817,7 +817,13 @@ function updateBossLasers() {
       laser.userData.hasDamaged =
         true;
 
-      damagePlayer(25);
+      var bossDamage =
+  typeof getBossLaserDamage ===
+    "function"
+    ? getBossLaserDamage()
+    : 20;
+
+damagePlayer(bossDamage);
     }
 
     if (
