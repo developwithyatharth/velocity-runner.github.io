@@ -1,185 +1,269 @@
-/* effects.js
-   Cinematic camera and optional bloom effects
+/* =========================================================
+   effects.js
+   Velocity Runner: Rise of Bharat
 
-   Bloom automatically disables on:
-   - Small screens
-   - Low-powered devices
-   - Reduced-motion preference
-   - Unsupported browsers
+   Stable rendering system
+   - Uses normal Three.js rendering
+   - Prevents black screen caused by EffectComposer
+   - Keeps cinematic camera shake
+   - Bloom can be restored later after the game is stable
+========================================================= */
+
+
+/* =========================================================
+   POST-PROCESSING STATE
+========================================================= */
+
+var composer = null;
+var bloomPass = null;
+
+/*
+  Keep bloom disabled for now.
+
+  The previous EffectComposer configuration was generating
+  a completely black canvas even though the game was running.
 */
 
-let composer = null;
-let renderScenePass = null;
-let bloomPass = null;
+var bloomEnabled = false;
 
-let bloomEnabled = false;
-let cameraShakeStrength = 0;
 
-/* -----------------------------------------
-   Post-processing
------------------------------------------ */
+/* =========================================================
+   CAMERA SHAKE STATE
+========================================================= */
+
+var cameraShakeStrength = 0;
+
+var cameraBaseX = 0;
+var cameraBaseY = 4.8;
+var cameraBaseZ = 8.5;
+
+
+/* =========================================================
+   INITIALIZE RENDERING
+========================================================= */
 
 function initPostProcessing() {
+  /*
+    Do not create EffectComposer right now.
+
+    The normal renderer is more stable across desktop,
+    mobile and GitHub Pages.
+  */
+
   composer = null;
-  renderScenePass = null;
   bloomPass = null;
   bloomEnabled = false;
 
-  if (!renderer || !scene || !camera) return;
-
-  const hasRequiredClasses =
-    typeof THREE.EffectComposer !== "undefined" &&
-    typeof THREE.RenderPass !== "undefined" &&
-    typeof THREE.UnrealBloomPass !== "undefined";
-
-  const isSmallScreen = window.innerWidth < 760;
-
-  const isLowPoweredDevice =
-    navigator.hardwareConcurrency &&
-    navigator.hardwareConcurrency <= 4;
-
-  const prefersReducedMotion =
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  if (
-    !hasRequiredClasses ||
-    isSmallScreen ||
-    isLowPoweredDevice ||
-    prefersReducedMotion
-  ) {
-    console.info("Velocity Runner: lightweight rendering mode active.");
-    return;
-  }
-
-  try {
-    composer = new THREE.EffectComposer(renderer);
-
-    renderScenePass = new THREE.RenderPass(scene, camera);
-
-    bloomPass = new THREE.UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.38,
-  0.22,
-  0.45
-);
-
-bloomPass.threshold = 0.42;
-bloomPass.strength = 0.38;
-bloomPass.radius = 0.18;
-
-    composer.addPass(renderScenePass);
-    composer.addPass(bloomPass);
-
-    bloomEnabled = true;
-
-    console.info("Velocity Runner: cinematic bloom enabled.");
-  } catch (error) {
-    console.warn(
-      "Bloom could not start. Standard rendering will be used.",
-      error
-    );
-
-    composer = null;
-    bloomPass = null;
-    bloomEnabled = false;
-  }
+  console.log(
+    "Velocity Runner: stable renderer enabled."
+  );
 }
+
+
+/* =========================================================
+   RENDER GAME FRAME
+========================================================= */
 
 function renderGameFrame() {
-  if (bloomEnabled && composer) {
-    composer.render();
+  if (
+    !renderer ||
+    !scene ||
+    !camera
+  ) {
     return;
   }
 
-  if (renderer && scene && camera) {
-    renderer.render(scene, camera);
-  }
+  /*
+    Always use the standard Three.js renderer.
+
+    This prevents the black screen caused by the previous
+    EffectComposer rendering pipeline.
+  */
+
+  renderer.render(
+    scene,
+    camera
+  );
 }
+
+
+/* =========================================================
+   RESIZE RENDERING
+========================================================= */
 
 function resizePostProcessing() {
-  if (composer) {
-    composer.setSize(window.innerWidth, window.innerHeight);
+  if (
+    !renderer ||
+    !camera
+  ) {
+    return;
   }
 
-  if (bloomPass) {
-    bloomPass.setSize(window.innerWidth, window.innerHeight);
-  }
-}
+  const width =
+    window.innerWidth;
 
-/* -----------------------------------------
-   Camera effects
------------------------------------------ */
+  const height =
+    window.innerHeight;
 
-function triggerCameraShake(strength = 0.1) {
-  cameraShakeStrength = Math.max(
-    cameraShakeStrength,
-    strength
+  renderer.setSize(
+    width,
+    height
   );
+
+  renderer.setPixelRatio(
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    )
+  );
+
+  camera.aspect =
+    width / height;
+
+  camera.updateProjectionMatrix();
+
+  /*
+    Kept for future compatibility if bloom is restored.
+  */
+
+  if (
+    composer &&
+    typeof composer.setSize ===
+      "function"
+  ) {
+    composer.setSize(
+      width,
+      height
+    );
+  }
 }
+
+
+/* =========================================================
+   CAMERA SHAKE
+========================================================= */
+
+function triggerCameraShake(
+  strength = 0.08
+) {
+  cameraShakeStrength =
+    Math.max(
+      cameraShakeStrength,
+      strength
+    );
+}
+
+
+/* =========================================================
+   CINEMATIC CAMERA
+========================================================= */
 
 function updateCinematicCamera() {
-  if (!camera || !player) return;
+  if (
+    !camera ||
+    !player
+  ) {
+    return;
+  }
 
-  const speedDifference = Math.max(
-    0,
-    speed - START_SPEED
-  );
+  /*
+    Follow the player's lane gently.
+  */
 
-  const speedFovIncrease = Math.min(
-    10,
-    speedDifference * 22
-  );
+  const targetCameraX =
+    player.position.x * 0.12;
 
-  const jumpFovIncrease = isJumping ? 1.2 : 0;
+  cameraBaseX +=
+    (
+      targetCameraX -
+      cameraBaseX
+    ) * 0.06;
 
-  const targetFov =
-    68 +
-    speedFovIncrease +
-    jumpFovIncrease;
 
-  camera.fov += (targetFov - camera.fov) * 0.06;
-  camera.updateProjectionMatrix();
+  /*
+    Slight speed-based camera movement.
+  */
+
+  const speedOffset =
+    Math.min(
+      0.55,
+      Math.max(
+        0,
+        speed - START_SPEED
+      ) * 0.8
+    );
+
+
+  const targetCameraY =
+    4.8 +
+    speedOffset * 0.2;
+
+
+  const targetCameraZ =
+    8.5 +
+    speedOffset;
+
+
+  cameraBaseY +=
+    (
+      targetCameraY -
+      cameraBaseY
+    ) * 0.04;
+
+
+  cameraBaseZ +=
+    (
+      targetCameraZ -
+      cameraBaseZ
+    ) * 0.04;
+
+
+  /*
+    Apply temporary camera shake.
+  */
 
   let shakeX = 0;
   let shakeY = 0;
   let shakeZ = 0;
 
+
   if (cameraShakeStrength > 0.001) {
     shakeX =
-      (Math.random() - 0.5) *
-      cameraShakeStrength;
+      (
+        Math.random() - 0.5
+      ) * cameraShakeStrength;
 
     shakeY =
-      (Math.random() - 0.5) *
-      cameraShakeStrength;
+      (
+        Math.random() - 0.5
+      ) * cameraShakeStrength;
 
     shakeZ =
-      (Math.random() - 0.5) *
-      cameraShakeStrength *
-      0.5;
+      (
+        Math.random() - 0.5
+      ) * cameraShakeStrength;
 
-    cameraShakeStrength *= 0.88;
+
+    cameraShakeStrength *= 0.86;
   } else {
     cameraShakeStrength = 0;
   }
 
-  const targetCameraX =
-    player.position.x * 0.3 + shakeX;
 
-  camera.position.x +=
-    (targetCameraX - camera.position.x) * 0.08;
+  camera.position.set(
+    cameraBaseX + shakeX,
+    cameraBaseY + shakeY,
+    cameraBaseZ + shakeZ
+  );
 
-  camera.position.y =
-    5.2 +
-    Math.sin(Date.now() * 0.002) * 0.025 +
-    shakeY;
 
-  camera.position.z = 9.2 + shakeZ;
+  /*
+    Look slightly ahead of the player.
+  */
 
   camera.lookAt(
-    player.position.x * 0.16,
-    0.48,
-    -13
+    player.position.x * 0.08,
+    player.position.y + 1.25,
+    -8
   );
 }
