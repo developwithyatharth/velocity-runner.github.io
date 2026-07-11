@@ -264,6 +264,12 @@ function resetGameState() {
 ) {
   resetBalanceState();
 }
+   if (
+  typeof resetMissionSystem ===
+  "function"
+) {
+  resetMissionSystem();
+}
 
   updateCoreHealth();
   updateShieldStatus();
@@ -1369,6 +1375,13 @@ function updateGame() {
   }
 
   updateHUD();
+
+if (
+  typeof updateMissionSystem ===
+  "function"
+) {
+  updateMissionSystem();
+}
 }
 
 
@@ -1888,6 +1901,19 @@ function initializeVelocityRunner() {
       true;
   }
 
+   if (
+  typeof setupMissionControls ===
+  "function"
+) {
+  setupMissionControls();
+}
+
+if (
+  typeof resetMissionSystem ===
+  "function"
+) {
+  resetMissionSystem();
+}
   showScreen(homeScreen);
 
   console.log(
