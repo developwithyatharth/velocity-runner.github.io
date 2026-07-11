@@ -200,23 +200,33 @@ if (highScoreText) {
    SCREEN CONTROL
 ========================================================= */
 
-function showScreen(screen) {
-  if (
-    !homeScreen ||
-    !gameScreen ||
-    !gameOverScreen ||
-    !screen
-  ) {
-    return;
+function showScreen(targetScreen) {
+  const allScreens = [
+    homeScreen,
+    gameScreen,
+    gameOverScreen
+  ];
+
+  allScreens.forEach(function (screen) {
+    if (!screen) return;
+
+    screen.classList.remove("active");
+    screen.hidden = true;
+    screen.style.display = "none";
+    screen.style.zIndex = "0";
+  });
+
+  if (!targetScreen) return;
+
+  targetScreen.hidden = false;
+  targetScreen.classList.add("active");
+  targetScreen.style.zIndex = "10";
+
+  if (targetScreen === gameScreen) {
+    targetScreen.style.display = "block";
+  } else {
+    targetScreen.style.display = "flex";
   }
-
-  homeScreen.classList.remove("active");
-  gameScreen.classList.remove("active");
-  gameOverScreen.classList.remove(
-    "active"
-  );
-
-  screen.classList.add("active");
 }
 
 
