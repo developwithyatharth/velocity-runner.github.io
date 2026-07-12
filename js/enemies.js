@@ -13,7 +13,109 @@
    - Safe object cleanup
 ========================================================= */
 
+/* =========================================================
+   ENEMY RUNTIME STATE
+========================================================= */
 
+var droneStatusResetTimer = null;
+var bossDefeatLocked = false;
+
+
+/* =========================================================
+   SAFE ENEMY HELPERS
+========================================================= */
+
+function getEnemyDifficultyMultiplier(
+  settingName,
+  fallback
+) {
+  if (
+    typeof difficultySettings !==
+      "undefined" &&
+    difficultySettings &&
+    typeof difficultySettings[
+      settingName
+    ] === "number" &&
+    Number.isFinite(
+      difficultySettings[
+        settingName
+      ]
+    ) &&
+    difficultySettings[
+      settingName
+    ] > 0
+  ) {
+    return difficultySettings[
+      settingName
+    ];
+  }
+
+  return fallback;
+}
+
+
+function getEnemyBossDistanceGap() {
+  if (
+    typeof getBossDistanceGap ===
+    "function"
+  ) {
+    return getBossDistanceGap();
+  }
+
+  if (
+    typeof BOSS_DISTANCE_GAP ===
+      "number" &&
+    Number.isFinite(
+      BOSS_DISTANCE_GAP
+    ) &&
+    BOSS_DISTANCE_GAP > 0
+  ) {
+    return BOSS_DISTANCE_GAP;
+  }
+
+  return 1000;
+}
+
+
+function showEnemyMission(
+  message,
+  duration
+) {
+  if (
+    typeof setMission ===
+    "function"
+  ) {
+    setMission(
+      message,
+      duration
+    );
+  }
+}
+
+
+function createEnemyExplosion(
+  x,
+  y,
+  z
+) {
+  if (
+    typeof createExplosion ===
+    "function"
+  ) {
+    createExplosion(x, y, z);
+  }
+}
+
+
+function clearDroneStatusTimer() {
+  if (droneStatusResetTimer) {
+    clearTimeout(
+      droneStatusResetTimer
+    );
+
+    droneStatusResetTimer = null;
+  }
+}
 /* =========================================================
    CREATE DRONE
 ========================================================= */
@@ -143,18 +245,33 @@ function updateDrone() {
     if (droneShootTimer <= 0) {
       droneShootEMP();
 
-      droneShootTimer =
-        Math.max(
-          55,
-          (
-            150 -
-            Math.floor(
-              distance / 70
-            )
-          ) /
-          difficultySettings
-            .droneAttackMultiplier
-        );
+    var safeDistance =
+  (
+    typeof distance === "number" &&
+    Number.isFinite(distance)
+  )
+    ? Math.max(0, distance)
+    : 0;
+
+var droneAttackMultiplier =
+  getEnemyDifficultyMultiplier(
+    "droneAttackMultiplier",
+    1
+  );
+
+droneShootTimer =
+  Math.max(
+    55,
+    Math.round(
+      (
+        150 -
+        Math.floor(
+          safeDistance / 70
+        )
+      ) /
+      droneAttackMultiplier
+    )
+  );
     }
   } else {
     droneRespawnTimer--;
@@ -303,6 +420,20 @@ function destroyDrone() {
   dronesDestroyed++;
   shards += 5;
 
+   if (
+  typeof registerNonCollectableShardReward ===
+  "function"
+) {
+  registerNonCollectableShardReward();
+}
+
+if (
+  typeof updateHUD ===
+  "function"
+) {
+  updateHUD();
+}
+
   if (
     typeof playDroneDestroyedSound ===
     "function"
@@ -333,12 +464,30 @@ function destroyDrone() {
       "Drone Down";
   }
 
-  setTimeout(function () {
-    if (abilityText) {
-      abilityText.textContent =
-        "Surya Dash Ready";
-    }
-  }, 900);
+ clearDroneStatusTimer();
+
+droneStatusResetTimer =
+  window.setTimeout(
+    function () {
+      droneStatusResetTimer = null;
+
+      if (
+        typeof gameRunning !==
+          "undefined" &&
+        gameRunning &&
+        (
+          typeof gameOver ===
+            "undefined" ||
+          !gameOver
+        ) &&
+        abilityText
+      ) {
+        abilityText.textContent =
+          "Surya Dash Ready";
+      }
+    },
+    900
+  );
 }
 
 
@@ -365,18 +514,33 @@ function respawnDrone() {
     1.8
   );
 
-  droneShootTimer =
-    Math.max(
-      60,
+ var safeDistance =
+  (
+    typeof distance === "number" &&
+    Number.isFinite(distance)
+  )
+    ? Math.max(0, distance)
+    : 0;
+
+var droneAttackMultiplier =
+  getEnemyDifficultyMultiplier(
+    "droneAttackMultiplier",
+    1
+  );
+
+droneShootTimer =
+  Math.max(
+    60,
+    Math.round(
       (
-        145 -
+        150 -
         Math.floor(
-          distance / 80
+          safeDistance / 70
         )
       ) /
-      difficultySettings
-        .droneAttackMultiplier
-    );
+      droneAttackMultiplier
+    )
+  );
 
   setMission(
     "New Trinetra drone incoming",
@@ -530,15 +694,28 @@ function startBossEvent() {
     return;
   }
 
+  bossDefeatLocked = false;
   bossActive = true;
 
   bossHealth =
-    bossMaxHealth;
+    (
+      typeof bossMaxHealth ===
+        "number" &&
+      Number.isFinite(
+        bossMaxHealth
+      ) &&
+      bossMaxHealth > 0
+    )
+      ? bossMaxHealth
+      : 100;
 
   bossAttackTimer = 70;
 
   if (boss) {
     boss.visible = true;
+
+    boss.userData.defeatHandled =
+      false;
 
     boss.position.set(
       0,
@@ -561,38 +738,114 @@ function startBossEvent() {
     triggerCameraShake(0.45);
   }
 
-  setMission(
+  showEnemyMission(
     "Boss Event: AI Guardian awakened",
     120
   );
 
-  updateBossUI();
+  if (
+    typeof updateBossUI ===
+    "function"
+  ) {
+    updateBossUI();
+  }
 }
-
-
 /* =========================================================
    END BOSS EVENT
 ========================================================= */
 
 function endBossEvent() {
+  /*
+   * Prevent duplicate boss rewards,
+   * mission progress and leaderboard credit.
+   */
+
+  if (
+    !bossActive ||
+    bossDefeatLocked ||
+    (
+      boss &&
+      boss.userData.defeatHandled
+    )
+  ) {
+    return;
+  }
+
+  bossDefeatLocked = true;
   bossActive = false;
-
-  nextBossDistance +=
-    BOSS_DISTANCE_GAP;
-
-  shards += 15;
-   if (
-  typeof registerBossDefeat ===
-  "function"
-) {
-  registerBossDefeat();
-}
+  bossHealth = 0;
 
   if (boss) {
+    boss.userData.defeatHandled =
+      true;
+
     boss.visible = false;
   }
 
-  clearBossLasers();
+  var safeDistance =
+    (
+      typeof distance === "number" &&
+      Number.isFinite(distance)
+    )
+      ? Math.max(0, distance)
+      : 0;
+
+  var currentBossDistance =
+    (
+      typeof nextBossDistance ===
+        "number" &&
+      Number.isFinite(
+        nextBossDistance
+      )
+    )
+      ? nextBossDistance
+      : safeDistance;
+
+  nextBossDistance =
+    currentBossDistance +
+    getEnemyBossDistanceGap();
+
+  if (
+    typeof shards !== "number" ||
+    !Number.isFinite(shards)
+  ) {
+    shards = 0;
+  }
+
+  shards += 15;
+
+  /*
+   * Prevent boss reward shards from
+   * counting as collected map shards.
+   */
+
+  if (
+    typeof registerNonCollectableShardReward ===
+    "function"
+  ) {
+    registerNonCollectableShardReward();
+  }
+
+  if (
+    typeof registerBossDefeat ===
+    "function"
+  ) {
+    registerBossDefeat();
+  }
+
+  if (
+    typeof updateHUD ===
+    "function"
+  ) {
+    updateHUD();
+  }
+
+  if (
+    typeof clearBossLasers ===
+    "function"
+  ) {
+    clearBossLasers();
+  }
 
   if (
     typeof playPowerUpSound ===
@@ -608,15 +861,18 @@ function endBossEvent() {
     triggerCameraShake(0.22);
   }
 
-  setMission(
+  showEnemyMission(
     "Boss defeated +15 Surya Shards",
     140
   );
 
-  updateBossUI();
+  if (
+    typeof updateBossUI ===
+    "function"
+  ) {
+    updateBossUI();
+  }
 }
-
-
 /* =========================================================
    UPDATE BOSS
 ========================================================= */
@@ -644,18 +900,33 @@ function updateBoss() {
   if (bossAttackTimer <= 0) {
     bossLaserAttack();
 
-    bossAttackTimer =
-      Math.max(
-        35,
-        (
-          95 -
-          Math.floor(
-            distance / 120
-          )
-        ) /
-        difficultySettings
-          .bossAttackMultiplier
-      );
+   var safeDistance =
+  (
+    typeof distance === "number" &&
+    Number.isFinite(distance)
+  )
+    ? Math.max(0, distance)
+    : 0;
+
+var bossAttackMultiplier =
+  getEnemyDifficultyMultiplier(
+    "bossAttackMultiplier",
+    1
+  );
+
+bossAttackTimer =
+  Math.max(
+    35,
+    Math.round(
+      (
+        95 -
+        Math.floor(
+          safeDistance / 120
+        )
+      ) /
+      bossAttackMultiplier
+    )
+  );
   }
 
   updateBossLasers();
@@ -667,20 +938,48 @@ function updateBoss() {
 ========================================================= */
 
 function damageBoss(amount) {
-  if (!bossActive) {
+  if (
+    !bossActive ||
+    bossDefeatLocked
+  ) {
     return;
+  }
+
+  var safeDamage =
+    (
+      typeof amount === "number" &&
+      Number.isFinite(amount)
+    )
+      ? Math.max(0, amount)
+      : 0;
+
+  if (safeDamage <= 0) {
+    return;
+  }
+
+  if (
+    typeof bossHealth !==
+      "number" ||
+    !Number.isFinite(bossHealth)
+  ) {
+    bossHealth = 0;
   }
 
   bossHealth =
     Math.max(
       0,
-      bossHealth - amount
+      bossHealth - safeDamage
     );
 
-  updateBossUI();
+  if (
+    typeof updateBossUI ===
+    "function"
+  ) {
+    updateBossUI();
+  }
 
   if (boss) {
-    createExplosion(
+    createEnemyExplosion(
       boss.position.x,
       5.4,
       boss.position.z + 0.8
@@ -698,8 +997,6 @@ function damageBoss(amount) {
     endBossEvent();
   }
 }
-
-
 /* =========================================================
    BOSS LASER ATTACK
 ========================================================= */
@@ -1081,15 +1378,30 @@ function updateObstacles() {
         if (!isSliding) {
           endGame();
         }
-      } else if (
-        obstacle.userData.type ===
-        "low"
-      ) {
-        if (!isJumping) {
-          endGame();
-        }
-      } else {
+      } } else if (
+  obstacle.userData.type ===
+  "low"
+) {
+  var currentPlayerY =
+    (
+      typeof playerY === "number" &&
+      Number.isFinite(playerY)
+    )
+      ? playerY
+      : player.position.y;
+
+  /*
+   * A tiny jump should not allow the
+   * player to pass through the obstacle.
+   */
+
+  if (currentPlayerY < 1.45) {
+    endGame();
+    return;
+  }
+}else {
         endGame();
+        return;
       }
     }
   }
