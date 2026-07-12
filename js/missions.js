@@ -1,15 +1,7 @@
 /* =========================================================
    missions.js
    Velocity Runner: Rise of Bharat
-
-   Run mission system:
-   - Distance mission
-   - Shard mission
-   - Drone mission
-   - Boss mission
-   - Bonus rewards
-   - Mission panel
-   - Completion notifications
+   Phase 2D stable mission system
 ========================================================= */
 
 
@@ -18,10 +10,115 @@
 ========================================================= */
 
 var missionBossDefeats = 0;
+var missionCollectedShards = 0;
+var missionCoreGuardDistance = 0;
+var missionRewardShards = 0;
+
+var missionLastObservedShards = 0;
+var missionLastObservedDistance = 0;
+var missionLastPanelRenderTime = 0;
 
 var runMissions = [];
 
 var missionToastTimer = null;
+var missionToastQueue = [];
+var missionToastActive = false;
+
+var MISSION_PANEL_RENDER_INTERVAL = 120;
+var MISSION_TOAST_DURATION = 3000;
+var CORE_GUARD_MINIMUM_HEALTH = 50;
+
+
+/* =========================================================
+   SAFE HELPERS
+========================================================= */
+
+function getMissionSafeNumber(
+  value,
+  fallback
+) {
+  if (
+    typeof value === "number" &&
+    Number.isFinite(value)
+  ) {
+    return value;
+  }
+
+  return typeof fallback === "number"
+    ? fallback
+    : 0;
+}
+
+
+function getMissionCurrentDistance() {
+  if (
+    typeof distance === "undefined"
+  ) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    getMissionSafeNumber(
+      distance,
+      0
+    )
+  );
+}
+
+
+function getMissionCurrentShards() {
+  if (
+    typeof shards === "undefined"
+  ) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    getMissionSafeNumber(
+      shards,
+      0
+    )
+  );
+}
+
+
+function getMissionCurrentCoreHealth() {
+  if (
+    typeof coreHealth === "undefined"
+  ) {
+    return 100;
+  }
+
+  return Math.max(
+    0,
+    getMissionSafeNumber(
+      coreHealth,
+      100
+    )
+  );
+}
+
+
+function getMissionDroneCount() {
+  if (
+    typeof dronesDestroyed ===
+    "undefined"
+  ) {
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    Math.floor(
+      getMissionSafeNumber(
+        dronesDestroyed,
+        0
+      )
+    )
+  );
+}
 
 
 /* =========================================================
@@ -33,8 +130,8 @@ function createRunMissions() {
     {
       id: "distance",
       title: "Velocity Initiate",
-      description: "Run 500 metres",
-      target: 500,
+      description: "Run 250 metres",
+      target: 250,
       progress: 0,
       reward: 10,
       completed: false
@@ -43,8 +140,9 @@ function createRunMissions() {
     {
       id: "shards",
       title: "Surya Collector",
-      description: "Collect 25 Surya Shards",
-      target: 25,
+      description:
+        "Collect 15 Surya Shards",
+      target: 15,
       progress: 0,
       reward: 15,
       completed: false
@@ -53,7 +151,8 @@ function createRunMissions() {
     {
       id: "drones",
       title: "Trinetra Hunter",
-      description: "Destroy 3 Trinetra drones",
+      description:
+        "Destroy 3 Trinetra drones",
       target: 3,
       progress: 0,
       reward: 20,
@@ -61,12 +160,35 @@ function createRunMissions() {
     },
 
     {
-      id: "boss",
-      title: "Guardian Breaker",
-      description: "Defeat 1 AI Guardian",
-      target: 1,
+      id: "coreGuardian",
+      title: "Core Guardian",
+      description:
+        "Travel 500 metres with Core Health at 50% or higher",
+      target: 500,
+      progress: 0,
+      reward: 25,
+      completed: false
+    },
+
+    {
+      id: "longDistance",
+      title: "Neo Bharat Runner",
+      description:
+        "Run 1,000 metres",
+      target: 1000,
       progress: 0,
       reward: 30,
+      completed: false
+    },
+
+    {
+      id: "boss",
+      title: "Guardian Breaker",
+      description:
+        "Defeat 1 AI Guardian",
+      target: 1,
+      progress: 0,
+      reward: 50,
       completed: false
     }
   ];
@@ -79,13 +201,83 @@ function createRunMissions() {
 
 function resetMissionSystem() {
   missionBossDefeats = 0;
+  missionCollectedShards = 0;
+  missionCoreGuardDistance = 0;
+  missionRewardShards = 0;
+
+  missionLastObservedShards =
+    getMissionCurrentShards();
+
+  missionLastObservedDistance =
+    getMissionCurrentDistance();
+
+  missionLastPanelRenderTime = 0;
 
   runMissions =
     createRunMissions();
 
-  hideMissionToast();
+  hideMissionToast(true);
+  closeMissionPanel();
+  renderMissionPanel(true);
+}
 
-  renderMissionPanel();
+
+/* =========================================================
+   TRACK RAW GAME PROGRESS
+========================================================= */
+
+function updateMissionShardTracking() {
+  var currentShardTotal =
+    getMissionCurrentShards();
+
+  var shardIncrease =
+    currentShardTotal -
+    missionLastObservedShards;
+
+  /*
+   * Mission rewards are excluded from
+   * collection progress.
+   */
+
+  if (shardIncrease > 0) {
+    missionCollectedShards +=
+      shardIncrease;
+  }
+
+  missionLastObservedShards =
+    currentShardTotal;
+}
+
+
+function updateMissionCoreGuardTracking() {
+  var currentDistance =
+    getMissionCurrentDistance();
+
+  var distanceIncrease =
+    currentDistance -
+    missionLastObservedDistance;
+
+  if (distanceIncrease < 0) {
+    distanceIncrease = 0;
+  }
+
+  if (
+    getMissionCurrentCoreHealth() >=
+    CORE_GUARD_MINIMUM_HEALTH
+  ) {
+    missionCoreGuardDistance +=
+      distanceIncrease;
+  } else {
+    /*
+     * Progress restarts when Core Health
+     * drops below 50%.
+     */
+
+    missionCoreGuardDistance = 0;
+  }
+
+  missionLastObservedDistance =
+    currentDistance;
 }
 
 
@@ -95,11 +287,39 @@ function resetMissionSystem() {
 
 function updateMissionSystem() {
   if (
-    !gameRunning ||
+    typeof gameRunning !==
+      "undefined" &&
+    !gameRunning
+  ) {
+    return;
+  }
+
+  if (
+    typeof gamePaused !==
+      "undefined" &&
+    gamePaused
+  ) {
+    return;
+  }
+
+  if (
+    typeof gameOver !==
+      "undefined" &&
     gameOver
   ) {
     return;
   }
+
+  updateMissionShardTracking();
+  updateMissionCoreGuardTracking();
+
+  var currentDistance =
+    Math.floor(
+      getMissionCurrentDistance()
+    );
+
+  var missionCompletedThisFrame =
+    false;
 
   runMissions.forEach(
     function (mission) {
@@ -107,27 +327,52 @@ function updateMissionSystem() {
         return;
       }
 
-      if (mission.id === "distance") {
+      if (
+        mission.id === "distance"
+      ) {
         mission.progress =
-          Math.floor(distance);
-      }
-
-      if (mission.id === "shards") {
-        mission.progress =
-          Math.floor(shards);
-      }
-
-      if (mission.id === "drones") {
+          currentDistance;
+      } else if (
+        mission.id === "shards"
+      ) {
         mission.progress =
           Math.floor(
-            dronesDestroyed
+            missionCollectedShards
           );
-      }
-
-      if (mission.id === "boss") {
+      } else if (
+        mission.id === "drones"
+      ) {
+        mission.progress =
+          getMissionDroneCount();
+      } else if (
+        mission.id ===
+        "coreGuardian"
+      ) {
+        mission.progress =
+          Math.floor(
+            missionCoreGuardDistance
+          );
+      } else if (
+        mission.id ===
+        "longDistance"
+      ) {
+        mission.progress =
+          currentDistance;
+      } else if (
+        mission.id === "boss"
+      ) {
         mission.progress =
           missionBossDefeats;
       }
+
+      mission.progress =
+        Math.max(
+          0,
+          Math.min(
+            mission.target,
+            mission.progress
+          )
+        );
 
       if (
         mission.progress >=
@@ -136,11 +381,16 @@ function updateMissionSystem() {
         completeRunMission(
           mission
         );
+
+        missionCompletedThisFrame =
+          true;
       }
     }
   );
 
-  renderMissionPanel();
+  renderMissionPanel(
+    missionCompletedThisFrame
+  );
 }
 
 
@@ -148,7 +398,9 @@ function updateMissionSystem() {
    COMPLETE MISSION
 ========================================================= */
 
-function completeRunMission(mission) {
+function completeRunMission(
+  mission
+) {
   if (
     !mission ||
     mission.completed
@@ -161,16 +413,48 @@ function completeRunMission(mission) {
   mission.progress =
     mission.target;
 
-  shards += mission.reward;
+  var reward =
+    Math.max(
+      0,
+      Math.floor(
+        getMissionSafeNumber(
+          mission.reward,
+          0
+        )
+      )
+    );
 
-  if (shardsText) {
+  if (
+    typeof shards !== "undefined"
+  ) {
+    shards += reward;
+
+    missionRewardShards +=
+      reward;
+
+    /*
+     * Prevent reward shards from being
+     * counted as collected shards.
+     */
+
+    missionLastObservedShards =
+      getMissionCurrentShards();
+  }
+
+  if (
+    typeof shardsText !==
+      "undefined" &&
+    shardsText
+  ) {
     shardsText.textContent =
-      Math.floor(shards);
+      Math.floor(
+        getMissionCurrentShards()
+      );
   }
 
   showMissionToast(
     mission.title,
-    mission.reward
+    reward
   );
 
   if (
@@ -184,7 +468,9 @@ function completeRunMission(mission) {
     typeof triggerCameraShake ===
     "function"
   ) {
-    triggerCameraShake(0.055);
+    triggerCameraShake(
+      0.055
+    );
   }
 
   if (
@@ -193,9 +479,9 @@ function completeRunMission(mission) {
   ) {
     setMission(
       mission.title +
-      " completed! +" +
-      mission.reward +
-      " shards",
+        " completed! +" +
+        reward +
+        " shards",
       120
     );
   }
@@ -207,9 +493,51 @@ function completeRunMission(mission) {
 ========================================================= */
 
 function registerBossDefeat() {
-  missionBossDefeats++;
+  missionBossDefeats += 1;
 
   updateMissionSystem();
+}
+
+
+/* =========================================================
+   MISSION SUMMARY HELPERS
+========================================================= */
+
+function getCompletedMissionCount() {
+  return runMissions.filter(
+    function (mission) {
+      return mission.completed;
+    }
+  ).length;
+}
+
+
+function getTotalMissionCount() {
+  return runMissions.length;
+}
+
+
+function getMissionBonusShards() {
+  return Math.max(
+    0,
+    Math.floor(
+      missionRewardShards
+    )
+  );
+}
+
+
+function getMissionSummary() {
+  return {
+    completed:
+      getCompletedMissionCount(),
+
+    total:
+      getTotalMissionCount(),
+
+    bonusShards:
+      getMissionBonusShards()
+  };
 }
 
 
@@ -217,7 +545,9 @@ function registerBossDefeat() {
    RENDER MISSION PANEL
 ========================================================= */
 
-function renderMissionPanel() {
+function renderMissionPanel(
+  forceRender
+) {
   var missionList =
     document.getElementById(
       "missionList"
@@ -227,7 +557,32 @@ function renderMissionPanel() {
     return;
   }
 
-  missionList.innerHTML = "";
+  var currentTime =
+    typeof performance !==
+      "undefined" &&
+    typeof performance.now ===
+      "function"
+      ? performance.now()
+      : Date.now();
+
+  /*
+   * Do not rebuild the mission-panel DOM
+   * on every animation frame.
+   */
+
+  if (
+    !forceRender &&
+    currentTime -
+      missionLastPanelRenderTime <
+      MISSION_PANEL_RENDER_INTERVAL
+  ) {
+    return;
+  }
+
+  missionLastPanelRenderTime =
+    currentTime;
+
+  missionList.textContent = "";
 
   runMissions.forEach(
     function (mission) {
@@ -250,75 +605,158 @@ function renderMissionPanel() {
           mission.target,
           Math.max(
             0,
-            mission.progress
+            Math.floor(
+              getMissionSafeNumber(
+                mission.progress,
+                0
+              )
+            )
           )
         );
 
       var progressPercent =
-        Math.min(
-          100,
-          (
-            safeProgress /
-            mission.target
-          ) * 100
+        mission.target > 0
+          ? Math.min(
+              100,
+              (
+                safeProgress /
+                mission.target
+              ) * 100
+            )
+          : 100;
+
+
+      /* MISSION HEADING */
+
+      var heading =
+        document.createElement(
+          "div"
         );
 
-      missionItem.innerHTML =
-        '<div class="mission-item-heading">' +
-          "<div>" +
-            "<strong>" +
-              escapeMissionText(
-                mission.title
-              ) +
-            "</strong>" +
-            "<span>" +
-              escapeMissionText(
-                mission.description
-              ) +
-            "</span>" +
-          "</div>" +
+      heading.className =
+        "mission-item-heading";
 
-          '<div class="mission-reward">' +
-            "+" +
-            mission.reward +
-            " ✦" +
-          "</div>" +
-        "</div>" +
+      var textGroup =
+        document.createElement(
+          "div"
+        );
 
-        '<div class="mission-progress-row">' +
-          '<div class="mission-progress-track">' +
-            '<div class="mission-progress-fill" ' +
-              'style="width:' +
-              progressPercent +
-              '%"></div>' +
-          "</div>" +
+      var title =
+        document.createElement(
+          "strong"
+        );
 
-          '<span class="mission-progress-text">' +
-            safeProgress +
-            "/" +
-            mission.target +
-          "</span>" +
-        "</div>";
+      title.textContent =
+        mission.title;
+
+      var description =
+        document.createElement(
+          "span"
+        );
+
+      description.textContent =
+        mission.description;
+
+      textGroup.appendChild(
+        title
+      );
+
+      textGroup.appendChild(
+        description
+      );
+
+
+      /* MISSION REWARD */
+
+      var reward =
+        document.createElement(
+          "div"
+        );
+
+      reward.className =
+        "mission-reward";
+
+      reward.textContent =
+        "+" +
+        mission.reward +
+        " ✦";
+
+      heading.appendChild(
+        textGroup
+      );
+
+      heading.appendChild(
+        reward
+      );
+
+
+      /* PROGRESS BAR */
+
+      var progressRow =
+        document.createElement(
+          "div"
+        );
+
+      progressRow.className =
+        "mission-progress-row";
+
+      var progressTrack =
+        document.createElement(
+          "div"
+        );
+
+      progressTrack.className =
+        "mission-progress-track";
+
+      var progressFill =
+        document.createElement(
+          "div"
+        );
+
+      progressFill.className =
+        "mission-progress-fill";
+
+      progressFill.style.width =
+        progressPercent + "%";
+
+      progressTrack.appendChild(
+        progressFill
+      );
+
+      var progressText =
+        document.createElement(
+          "span"
+        );
+
+      progressText.className =
+        "mission-progress-text";
+
+      progressText.textContent =
+        safeProgress +
+        "/" +
+        mission.target;
+
+      progressRow.appendChild(
+        progressTrack
+      );
+
+      progressRow.appendChild(
+        progressText
+      );
+
+      missionItem.appendChild(
+        heading
+      );
+
+      missionItem.appendChild(
+        progressRow
+      );
 
       missionList.appendChild(
         missionItem
       );
     }
   );
-}
-
-
-/* =========================================================
-   SAFE TEXT
-========================================================= */
-
-function escapeMissionText(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 
@@ -336,7 +774,7 @@ function openMissionPanel() {
     return;
   }
 
-  renderMissionPanel();
+  renderMissionPanel(true);
 
   missionPanel.classList.remove(
     "mission-hidden"
@@ -377,7 +815,8 @@ function setupMissionControls() {
       .missionReady
   ) {
     showButton.dataset
-      .missionReady = "true";
+      .missionReady =
+      "true";
 
     showButton.addEventListener(
       "click",
@@ -391,7 +830,8 @@ function setupMissionControls() {
       .missionReady
   ) {
     closeButton.dataset
-      .missionReady = "true";
+      .missionReady =
+      "true";
 
     closeButton.addEventListener(
       "click",
@@ -402,32 +842,94 @@ function setupMissionControls() {
 
 
 /* =========================================================
-   MISSION COMPLETION TOAST
+   MISSION COMPLETION TOAST QUEUE
 ========================================================= */
 
 function showMissionToast(
   missionTitle,
   reward
 ) {
+  missionToastQueue.push({
+    title:
+      String(missionTitle),
+
+    reward:
+      Math.max(
+        0,
+        Math.floor(
+          getMissionSafeNumber(
+            reward,
+            0
+          )
+        )
+      )
+  });
+
+  displayNextMissionToast();
+}
+
+
+function displayNextMissionToast() {
+  if (
+    missionToastActive ||
+    missionToastQueue.length === 0
+  ) {
+    return;
+  }
+
   var toast =
     document.getElementById(
       "missionToast"
     );
 
   if (!toast) {
+    missionToastQueue = [];
+    missionToastActive = false;
     return;
   }
 
-  toast.innerHTML =
-    "<strong>Mission Completed</strong>" +
-    "<span>" +
-      escapeMissionText(
-        missionTitle
-      ) +
-      " · +" +
-      reward +
-      " Surya Shards" +
-    "</span>";
+  var nextToast =
+    missionToastQueue.shift();
+
+  missionToastActive = true;
+
+  toast.textContent = "";
+
+
+  /* TOAST HEADING */
+
+  var heading =
+    document.createElement(
+      "strong"
+    );
+
+  heading.textContent =
+    "Mission Completed";
+
+
+  /* TOAST MESSAGE */
+
+  var message =
+    document.createElement(
+      "span"
+    );
+
+  message.textContent =
+    nextToast.title +
+    " · +" +
+    nextToast.reward +
+    " Surya Shards";
+
+  toast.appendChild(
+    heading
+  );
+
+  toast.appendChild(
+    message
+  );
+
+
+  /* RESTART TOAST ANIMATION */
 
   toast.classList.remove(
     "mission-toast-visible"
@@ -439,31 +941,39 @@ function showMissionToast(
     "mission-toast-visible"
   );
 
-  if (missionToastTimer) {
-    clearTimeout(
-      missionToastTimer
-    );
-  }
-
   missionToastTimer =
     window.setTimeout(
-      hideMissionToast,
-      3000
+      function () {
+        toast.classList.remove(
+          "mission-toast-visible"
+        );
+
+        missionToastTimer =
+          window.setTimeout(
+            function () {
+              missionToastTimer =
+                null;
+
+              missionToastActive =
+                false;
+
+              displayNextMissionToast();
+            },
+            220
+          );
+      },
+      MISSION_TOAST_DURATION
     );
 }
 
 
-function hideMissionToast() {
+function hideMissionToast(
+  clearQueue
+) {
   var toast =
     document.getElementById(
       "missionToast"
     );
-
-  if (toast) {
-    toast.classList.remove(
-      "mission-toast-visible"
-    );
-  }
 
   if (missionToastTimer) {
     clearTimeout(
@@ -471,5 +981,19 @@ function hideMissionToast() {
     );
 
     missionToastTimer = null;
+  }
+
+  missionToastActive = false;
+
+  if (clearQueue) {
+    missionToastQueue = [];
+  }
+
+  if (toast) {
+    toast.classList.remove(
+      "mission-toast-visible"
+    );
+
+    toast.textContent = "";
   }
 }
