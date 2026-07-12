@@ -1,4 +1,4 @@
-/* =========================================================
+   /* =========================================================
    missions.js
    Velocity Runner: Rise of Bharat
    Phase 2D stable mission system
@@ -282,34 +282,10 @@ function updateMissionCoreGuardTracking() {
 
 
 /* =========================================================
-   UPDATE MISSION PROGRESS
+   CALCULATE CURRENT MISSION PROGRESS
 ========================================================= */
 
-function updateMissionSystem() {
-  if (
-    typeof gameRunning !==
-      "undefined" &&
-    !gameRunning
-  ) {
-    return;
-  }
-
-  if (
-    typeof gamePaused !==
-      "undefined" &&
-    gamePaused
-  ) {
-    return;
-  }
-
-  if (
-    typeof gameOver !==
-      "undefined" &&
-    gameOver
-  ) {
-    return;
-  }
-
+function refreshMissionProgress() {
   updateMissionShardTracking();
   updateMissionCoreGuardTracking();
 
@@ -388,11 +364,76 @@ function updateMissionSystem() {
     }
   );
 
+  return missionCompletedThisFrame;
+}
+
+
+/* =========================================================
+   UPDATE MISSION PROGRESS
+========================================================= */
+
+function updateMissionSystem() {
+  if (
+    typeof gameRunning !==
+      "undefined" &&
+    !gameRunning
+  ) {
+    return;
+  }
+
+  if (
+    typeof gamePaused !==
+      "undefined" &&
+    gamePaused
+  ) {
+    return;
+  }
+
+  if (
+    typeof gameOver !==
+      "undefined" &&
+    gameOver
+  ) {
+    return;
+  }
+
+  var missionCompleted =
+    refreshMissionProgress();
+
   renderMissionPanel(
-    missionCompletedThisFrame
+    missionCompleted
   );
 }
 
+
+/* =========================================================
+   FINALIZE MISSIONS BEFORE GAME OVER
+========================================================= */
+
+function finalizeMissionSystem() {
+  /*
+   * This final check prevents a mission
+   * completed during the last game frame
+   * from being missed.
+   */
+
+  refreshMissionProgress();
+
+  renderMissionPanel(true);
+
+  if (
+    typeof getMissionSummary ===
+    "function"
+  ) {
+    return getMissionSummary();
+  }
+
+  return {
+    completed: 0,
+    total: 0,
+    bonusShards: 0
+  };
+}
 
 /* =========================================================
    COMPLETE MISSION
