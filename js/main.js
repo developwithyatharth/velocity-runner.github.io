@@ -836,7 +836,11 @@ function beginRun() {
    START GAME BUTTON
 ========================================================= */
 
-function startGame() {
+function startGameWithTutorial(
+  function () {
+    startGame();
+  }
+); {
   if (
     typeof THREE === "undefined"
   ) {
