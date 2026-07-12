@@ -83,6 +83,15 @@ function getMissionCurrentShards() {
   );
 }
 
+function registerNonCollectableShardReward() {
+  /*
+   * Synchronize the observed shard total
+   * without increasing collection progress.
+   */
+
+  missionLastObservedShards =
+    getMissionCurrentShards();
+}
 
 function getMissionCurrentCoreHealth() {
   if (
