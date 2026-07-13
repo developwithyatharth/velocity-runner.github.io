@@ -1939,8 +1939,7 @@ function updateObstacles() {
     return;
   }
 
-  var currentTime =
-    Date.now();
+  var currentTime = Date.now();
 
   for (
     var obstacleIndex =
@@ -1963,8 +1962,8 @@ function updateObstacles() {
     }
 
     /*
-     * Obstacles remain upright and realistic.
-     * The old continuous rotation has been removed.
+     * Move the obstacle toward the player.
+     * Do not continuously rotate realistic objects.
      */
 
     obstacle.position.z += speed;
@@ -1973,15 +1972,20 @@ function updateObstacles() {
       obstacle,
       currentTime
     );
-     if (
-  typeof updateObstaclePresentation ===
-  "function"
-) {
-  updateObstaclePresentation(
-    obstacle,
-    currentTime
-  );
-}
+
+    if (
+      typeof updateObstaclePresentation ===
+      "function"
+    ) {
+      updateObstaclePresentation(
+        obstacle,
+        currentTime
+      );
+    }
+
+    /*
+     * Remove objects after they pass the camera.
+     */
 
     if (
       obstacle.position.z > 9
@@ -2021,65 +2025,31 @@ function updateObstacles() {
       differenceZ < hitHalfZ;
 
     if (
-  intersectsLane &&
-  intersectsDepth
-) {
-  /*
-   * An active Surya Dash can destroy only objects
-   * explicitly marked as lightweight.
-   */
-
-  if (
-    obstacle.userData
-      .breakableByDash &&
-    typeof destroyObstacleWithDash ===
-      "function"
-  ) {
-    var destroyedByDash =
-      destroyObstacleWithDash(
-        obstacle,
-        obstacleIndex
-      );
-
-    if (destroyedByDash) {
-      continue;
-    }
-  }
-
-  var cleared =
-    hasPlayerClearedObstacle(
-      obstacle
-    );
-
-  if (!cleared) {
-    if (
-      typeof triggerFatalObstacleImpact ===
-      "function"
+      intersectsLane &&
+      intersectsDepth
     ) {
-      var impactStarted =
-        triggerFatalObstacleImpact(
-          obstacle
-        );
+      /*
+       * Surya Dash can destroy only lightweight
+       * obstacles such as sandbags.
+       */
 
-      if (impactStarted) {
-        removeObstacle(
-          obstacle,
-          obstacleIndex
-        );
+      if (
+        obstacle.userData
+          .breakableByDash &&
+        typeof destroyObstacleWithDash ===
+          "function"
+      ) {
+        var destroyedByDash =
+          destroyObstacleWithDash(
+            obstacle,
+            obstacleIndex
+          );
 
-        return;
+        if (destroyedByDash) {
+          continue;
+        }
       }
-    }
 
-    /*
-     * Safe fallback if obstacleEffects.js failed
-     * to load for any reason.
-     */
-
-    endGame();
-    return;
-  }
-}
       var cleared =
         hasPlayerClearedObstacle(
           obstacle
@@ -2087,28 +2057,28 @@ function updateObstacles() {
 
       if (!cleared) {
         if (
-          typeof triggerCameraShake ===
+          typeof triggerFatalObstacleImpact ===
           "function"
         ) {
-          triggerCameraShake(
-            0.18
-          );
+          var impactStarted =
+            triggerFatalObstacleImpact(
+              obstacle
+            );
+
+          if (impactStarted) {
+            removeObstacle(
+              obstacle,
+              obstacleIndex
+            );
+
+            return;
+          }
         }
 
-        if (
-          typeof setMission ===
-          "function"
-        ) {
-          setMission(
-            "Collision: " +
-              (
-                obstacle.userData
-                  .objectName ||
-                "road obstacle"
-              ),
-            75
-          );
-        }
+        /*
+         * Fallback when obstacleEffects.js
+         * is unavailable.
+         */
 
         endGame();
         return;
@@ -2116,7 +2086,6 @@ function updateObstacles() {
     }
   }
 }
-
 
 /* =========================================================
    SAFE MATERIAL DISPOSAL
