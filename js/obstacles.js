@@ -260,7 +260,7 @@ function createObstacleWheel(
 
 
 /* =========================================================
-   WARNING PANEL
+   WARNING PANNEL
 ========================================================= */
 
 function createObstacleWarningPanel(
