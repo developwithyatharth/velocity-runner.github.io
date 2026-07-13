@@ -25,6 +25,22 @@ var touchStartY = 0;
 var touchStartTime = 0;
 var lastTapTime = 0;
 
+/*
+ * Old neon decoration is temporarily disabled.
+ * It will be replaced with a cleaner realistic city.
+ */
+
+var ENABLE_LEGACY_NEON_DECOR =
+  false;
+
+/*
+ * Keep weather disabled while establishing
+ * the bright stylized-realistic environment.
+ */
+
+var ENABLE_RAIN_EFFECT =
+  false;
+
 
 /* =========================================================
    SAFE CONFIGURATION HELPERS
@@ -492,52 +508,68 @@ function initThree() {
 
   ensureGameScreenLayering();
 
-  scene = new THREE.Scene();
+  scene =
+    new THREE.Scene();
+
+  /*
+   * Warm atmospheric clear colour.
+   * The sky dome in effects.js renders above it.
+   */
 
   scene.background =
-    new THREE.Color(0x020612);
+    new THREE.Color(
+      0x91a9bd
+    );
+
+  /*
+   * Natural atmospheric perspective.
+   */
 
   scene.fog =
     new THREE.Fog(
-      0x020612,
-      38,
-      190
+      0x9aa4a8,
+      52,
+      235
     );
 
   camera =
     new THREE.PerspectiveCamera(
-      60,
+      56,
+
       window.innerWidth /
-        window.innerHeight,
+      window.innerHeight,
+
       0.1,
-      500
+      450
     );
 
   camera.position.set(
     0,
-    4.8,
-    8.5
+    5.25,
+    9.4
   );
 
   camera.lookAt(
     0,
-    1.3,
-    -12
+    1.45,
+    -14
   );
+
+  var mobileDevice =
+    window.innerWidth <= 720;
 
   renderer =
     new THREE.WebGLRenderer({
       canvas: canvas,
-      antialias: true,
+
+      antialias:
+        !mobileDevice,
+
       alpha: false,
+
       powerPreference:
         "high-performance"
     });
-
-  renderer.setClearColor(
-    0x020612,
-    1
-  );
 
   renderer.setSize(
     window.innerWidth,
@@ -548,14 +580,26 @@ function initThree() {
   renderer.setPixelRatio(
     Math.min(
       window.devicePixelRatio || 1,
-      2
+
+      mobileDevice
+        ? 1.25
+        : 1.6
     )
   );
 
-  renderer.shadowMap.enabled = true;
+  renderer.setClearColor(
+    0x91a9bd,
+    1
+  );
+
+  renderer.shadowMap.enabled =
+    true;
 
   renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
+
+  renderer.shadowMap.autoUpdate =
+    true;
 
   if (
     typeof THREE.ACESFilmicToneMapping !==
@@ -565,7 +609,7 @@ function initThree() {
       THREE.ACESFilmicToneMapping;
 
     renderer.toneMappingExposure =
-      1;
+      0.92;
   }
 
   if (
@@ -574,6 +618,14 @@ function initThree() {
   ) {
     renderer.outputEncoding =
       THREE.sRGBEncoding;
+  }
+
+  if (
+    "physicallyCorrectLights" in
+    renderer
+  ) {
+    renderer.physicallyCorrectLights =
+      true;
   }
 
   createMainLighting();
@@ -592,103 +644,180 @@ function initThree() {
   onResize();
 
   console.log(
-    "Velocity Runner scene initialized:",
+    "Velocity Runner realistic scene initialized:",
     scene.children.length,
     "scene objects"
   );
 }
-
-
 /* =========================================================
    LIGHTING
 ========================================================= */
 
 function createMainLighting() {
+  /*
+   * Low ambient light preserves shape and shadows.
+   */
+
   var ambientLight =
     new THREE.AmbientLight(
       0xffffff,
-      1.08
+      0.24
     );
 
-  scene.add(ambientLight);
+  scene.add(
+    ambientLight
+  );
+
+
+  /*
+   * Soft sky and warm ground illumination.
+   */
 
   var hemisphereLight =
     new THREE.HemisphereLight(
-      0x63dfff,
-      0x100c22,
-      1
+      0xb9dcff,
+      0x6a4a36,
+      0.82
     );
 
-  scene.add(hemisphereLight);
-
-  var directionalLight =
-    new THREE.DirectionalLight(
-      0xffffff,
-      1.15
-    );
-
-  directionalLight.position.set(
-    5,
-    12,
-    8
+  scene.add(
+    hemisphereLight
   );
 
-  directionalLight.castShadow =
+
+  /*
+   * Main warm sunlight.
+   */
+
+  var sunlight =
+    new THREE.DirectionalLight(
+      0xffd4a8,
+      1.7
+    );
+
+  sunlight.position.set(
+    -18,
+    28,
+    14
+  );
+
+  sunlight.castShadow =
     true;
 
-  directionalLight.shadow.mapSize.set(
-    1024,
-    1024
+  var shadowResolution =
+    window.innerWidth <= 720
+      ? 1024
+      : 2048;
+
+  sunlight.shadow.mapSize.set(
+    shadowResolution,
+    shadowResolution
   );
 
-  scene.add(directionalLight);
+  sunlight.shadow.camera.left =
+    -13;
 
-  var cyanLight =
-    new THREE.PointLight(
-      0x00d9ef,
-      1,
-      48
-    );
+  sunlight.shadow.camera.right =
+    13;
 
-  cyanLight.position.set(
-    -5,
-    5,
-    -12
-  );
+  sunlight.shadow.camera.top =
+    15;
 
-  scene.add(cyanLight);
+  sunlight.shadow.camera.bottom =
+    -5;
 
-  var goldLight =
-    new THREE.PointLight(
-      0xf2b544,
-      0.9,
-      48
-    );
+  sunlight.shadow.camera.near =
+    1;
 
-  goldLight.position.set(
-    5,
-    5,
-    -28
-  );
+  sunlight.shadow.camera.far =
+    90;
 
-  scene.add(goldLight);
+  sunlight.shadow.bias =
+    -0.00035;
 
-  var purpleLight =
-    new THREE.PointLight(
-      0x813fd1,
-      0.75,
-      42
-    );
+  sunlight.shadow.normalBias =
+    0.035;
 
-  purpleLight.position.set(
+  sunlight.shadow.radius =
+    3;
+
+  sunlight.target.position.set(
     0,
-    7,
-    -48
+    0,
+    -32
   );
 
-  scene.add(purpleLight);
-}
+  scene.add(
+    sunlight
+  );
 
+  scene.add(
+    sunlight.target
+  );
+
+
+  /*
+   * Soft cool fill light prevents completely
+   * black shadows without producing neon glare.
+   */
+
+  var coolFill =
+    new THREE.DirectionalLight(
+      0xa8c8e8,
+      0.34
+    );
+
+  coolFill.position.set(
+    14,
+    10,
+    6
+  );
+
+  coolFill.target.position.set(
+    0,
+    1,
+    -20
+  );
+
+  scene.add(
+    coolFill
+  );
+
+  scene.add(
+    coolFill.target
+  );
+
+
+  /*
+   * Warm horizon rim light.
+   */
+
+  var horizonFill =
+    new THREE.DirectionalLight(
+      0xffb878,
+      0.22
+    );
+
+  horizonFill.position.set(
+    -8,
+    6,
+    -45
+  );
+
+  horizonFill.target.position.set(
+    0,
+    3,
+    -15
+  );
+
+  scene.add(
+    horizonFill
+  );
+
+  scene.add(
+    horizonFill.target
+  );
+}
 
 /* =========================================================
    CREATE GAME GROUPS
@@ -718,14 +847,37 @@ function createMainGroups() {
 /* =========================================================
    CREATE GAME WORLD
 ========================================================= */
-
 function createMainWorld() {
+  /*
+   * Environment first.
+   */
+
   if (
     typeof createRoad ===
     "function"
   ) {
     createRoad();
   }
+
+  if (
+    typeof createCity ===
+    "function"
+  ) {
+    createCity();
+  }
+
+  if (
+    ENABLE_RAIN_EFFECT &&
+    typeof createRain ===
+    "function"
+  ) {
+    createRain();
+  }
+
+
+  /*
+   * Gameplay characters and enemies.
+   */
 
   if (
     typeof createPlayer ===
@@ -762,36 +914,30 @@ function createMainWorld() {
     upgradeBossVisuals();
   }
 
-  if (
-    typeof createCity ===
-    "function"
-  ) {
-    createCity();
-  }
+
+  /*
+   * Do not load the old overlapping neon
+   * decoration in realistic mode.
+   */
 
   if (
-    typeof createRain ===
-    "function"
+    ENABLE_LEGACY_NEON_DECOR
   ) {
-    createRain();
-  }
+    if (
+      typeof createSkySymbols ===
+      "function"
+    ) {
+      createSkySymbols();
+    }
 
-  if (
-    typeof createSkySymbols ===
-    "function"
-  ) {
-    createSkySymbols();
-  }
-
-  if (
-    typeof createNeoAryavartaVisuals ===
-    "function"
-  ) {
-    createNeoAryavartaVisuals();
+    if (
+      typeof createNeoAryavartaVisuals ===
+      "function"
+    ) {
+      createNeoAryavartaVisuals();
+    }
   }
 }
-
-
 /* =========================================================
    BEGIN A NEW RUN
 ========================================================= */
