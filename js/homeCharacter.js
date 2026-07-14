@@ -1605,33 +1605,33 @@ function resizeCharacter() {
     window.innerHeight;
 
   /*
-   * The runner is the main visual attraction.
-   * It should occupy roughly one-third of the screen height.
+   * Balanced size that keeps the complete runner
+   * visible between the logo and Play button.
    */
 
   var characterScale =
     width < 760
-      ? 0.94
+      ? 0.78
       : width < 1100
-        ? 1.25
-        : 1.46;
+        ? 0.96
+        : 1.08;
 
   if (height < 650) {
-    characterScale *= 0.9;
+    characterScale *= 0.88;
   }
 
   var characterY =
     width < 760
-      ? 2.1
-      : 2.55;
+      ? 1.75
+      : 2.1;
 
   var characterZ =
     width < 760
-      ? 7
-      : 7.4;
+      ? 6.4
+      : 6.1;
 
   if (height < 650) {
-    characterY = 2.25;
+    characterY = 1.82;
   }
 
   characterRoot.scale.setScalar(
@@ -1647,8 +1647,6 @@ function resizeCharacter() {
   characterRoot.userData.baseY =
     characterY;
 }
-
-
   /* =======================================================
      IDLE ANIMATION
   ======================================================= */
