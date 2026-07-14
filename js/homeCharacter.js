@@ -1525,54 +1525,71 @@
      RESPONSIVE SCALE
   ======================================================= */
 
-  function resizeCharacter() {
-    if (!characterRoot) {
-      return;
-    }
-
-
-    var width =
-      window.innerWidth;
-
-    var height =
-      window.innerHeight;
-
-
-    var scale = 0.92;
-
-
-    if (width < 760) {
-      scale = 0.72;
-    }
-
-
-    if (height < 760) {
-      scale *= 0.84;
-    }
-
-
-    if (height < 630) {
-      scale *= 0.82;
-    }
-
-
-    characterRoot.scale.setScalar(
-      scale
-    );
-
-
-    characterRoot.position.set(
-      0,
-
-      height < 700
-        ? -0.55
-        : -0.22,
-
-      width < 760
-        ? 4.25
-        : 3.35
-    );
+ function resizeCharacter() {
+  if (!characterRoot) {
+    return;
   }
+
+  var width =
+    window.innerWidth;
+
+  var height =
+    window.innerHeight;
+
+  /*
+   * Desktop screens should display the character
+   * prominently, even when their height is around 700px.
+   */
+
+  var characterScale =
+    width < 760
+      ? 0.8
+      : width < 1100
+        ? 1
+        : 1.16;
+
+  if (height < 620) {
+    characterScale *= 0.88;
+  }
+
+  /*
+   * Move the character upward and closer to the camera.
+   * The previous negative Y position placed the character
+   * almost completely behind the Play button.
+   */
+
+  var characterY =
+    width < 760
+      ? 2.05
+      : 2.85;
+
+  var characterZ =
+    width < 760
+      ? 6.6
+      : 6.2;
+
+  if (height < 620) {
+    characterY = 2.35;
+  }
+
+  characterRoot.scale.setScalar(
+    characterScale
+  );
+
+  characterRoot.position.set(
+    0,
+    characterY,
+    characterZ
+  );
+
+  /*
+   * The idle animation uses this value.
+   * It must be refreshed whenever the screen is resized.
+   */
+
+  characterRoot.userData.baseY =
+    characterY;
+}
 
 
   /* =======================================================
