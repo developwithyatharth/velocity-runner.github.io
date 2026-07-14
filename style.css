@@ -5020,3 +5020,302 @@ body.tutorial-open {
     font-size: 11px;
   }
 }
+/* =========================================================
+   RUNNOVA H1D — PREMIUM HOME SCREEN POLISH
+========================================================= */
+
+/* Cinematic edge depth */
+
+#homeScreen.runnova-home::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 2;
+
+  display: block;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0) 22%,
+      rgba(27, 110, 184, 0.04) 48%,
+      rgba(15, 54, 125, 0.22) 100%
+    );
+}
+
+
+/* Bottom fade keeps buttons readable */
+
+#homeScreen.runnova-home::after {
+  content: "";
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  z-index: 3;
+
+  display: block;
+
+  height: 26%;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(19, 56, 123, 0.16) 58%,
+      rgba(13, 39, 101, 0.35)
+    );
+}
+
+
+.home-canvas {
+  filter:
+    saturate(1.12)
+    contrast(1.08)
+    brightness(0.96);
+}
+
+
+.runnova-home-shell {
+  z-index: 5;
+}
+
+
+/* Improve character focal area */
+
+.home-hero-stage::before {
+  content: "";
+
+  position: absolute;
+  top: 42%;
+  left: 50%;
+
+  width: min(430px, 48vw);
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(110, 255, 246, 0.2),
+      rgba(61, 195, 239, 0.08) 46%,
+      transparent 70%
+    );
+
+  filter: blur(8px);
+}
+
+
+/* More refined glass cards */
+
+.home-name-card,
+.home-level-card,
+.home-event-card,
+.home-currency,
+.home-icon-button {
+  border-color:
+    rgba(255, 255, 255, 0.55);
+
+  backdrop-filter:
+    blur(11px)
+    saturate(1.14);
+
+  box-shadow:
+    0 11px 24px
+      rgba(15, 38, 103, 0.28),
+    inset 0 2px 0
+      rgba(255, 255, 255, 0.24);
+}
+
+
+.home-name-card:hover,
+.home-level-card:hover,
+.home-event-card:hover,
+.home-icon-button:hover {
+  transform: translateY(-3px);
+
+  filter: brightness(1.06);
+}
+
+
+/* Better central spacing */
+
+.runnova-brand {
+  top:
+    clamp(
+      46px,
+      7vh,
+      72px
+    );
+
+  width:
+    min(
+      520px,
+      68vw
+    );
+}
+
+
+.home-event-card {
+  top: 28%;
+}
+
+
+.home-hero-stage {
+  top: 19%;
+  bottom: 19%;
+}
+
+
+/* Play button remains fixed and premium */
+
+.runnova-play-button {
+  bottom: 111px;
+
+  width:
+    min(
+      420px,
+      68vw
+    );
+
+  border-radius: 23px;
+
+  box-shadow:
+    0 8px 0 #ca671f,
+    0 18px 32px
+      rgba(24, 52, 124, 0.35),
+    inset 0 4px 0
+      rgba(255, 255, 255, 0.6);
+}
+
+
+/* Unified navigation dock */
+
+.home-bottom-navigation {
+  padding: 8px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.24);
+
+  border-radius: 27px;
+
+  background:
+    rgba(21, 63, 139, 0.16);
+
+  backdrop-filter:
+    blur(10px);
+
+  box-shadow:
+    0 15px 32px
+      rgba(13, 37, 96, 0.22);
+}
+
+
+.home-nav-button {
+  min-height: 75px;
+
+  border-radius: 18px;
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.home-nav-button:hover {
+  transform:
+    translateY(-5px)
+    scale(1.015);
+
+  filter:
+    brightness(1.08)
+    saturate(1.08);
+}
+
+
+/* Better utility-button placement */
+
+.home-utility-actions {
+  right:
+    clamp(
+      22px,
+      6vw,
+      110px
+    );
+
+  bottom: 118px;
+
+  gap: 9px;
+}
+
+
+.home-utility-button {
+  min-width: 105px;
+
+  border-color:
+    rgba(255, 255, 255, 0.5);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 83, 179, 0.94),
+      rgba(31, 49, 125, 0.94)
+    );
+
+  backdrop-filter:
+    blur(9px);
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+
+.home-utility-button:hover {
+  transform:
+    translateX(-4px);
+
+  filter: brightness(1.08);
+}
+
+
+@media (max-width: 760px) {
+  .runnova-brand {
+    top: 78px;
+
+    width: 87vw;
+  }
+
+  .home-event-card {
+    top: 26%;
+  }
+
+  .home-hero-stage {
+    top: 22%;
+    bottom: 23%;
+  }
+
+  .runnova-play-button {
+    width: 74vw;
+  }
+
+  .home-utility-actions {
+    right: 7px;
+  }
+}
