@@ -1,0 +1,414 @@
+/* =========================================================
+   RunNova Home Panels — H2A
+   Scoped overlay styles. Keep separate from style.css.
+========================================================= */
+
+#homeHubOverlay[hidden] {
+  display: none;
+}
+
+#homeHubOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 620;
+  display: grid;
+  place-items: center;
+  padding: clamp(14px, 3vw, 30px);
+  color: #f8fbff;
+}
+
+#homeHubOverlay .home-hub-backdrop {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: rgba(10, 27, 75, 0.58);
+  backdrop-filter: blur(10px) saturate(0.85);
+  transition: opacity 0.22s ease;
+}
+
+#homeHubOverlay .home-hub-panel {
+  position: relative;
+  z-index: 1;
+  width: min(900px, 96vw);
+  max-height: min(760px, 88dvh);
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.62);
+  border-radius: 28px;
+  opacity: 0;
+  transform: translateY(26px) scale(0.97);
+  background:
+    radial-gradient(circle at 16% 8%, rgba(47, 237, 240, 0.18), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(215, 75, 232, 0.18), transparent 28%),
+    linear-gradient(155deg, rgba(11, 62, 145, 0.98), rgba(31, 38, 111, 0.98));
+  box-shadow:
+    0 28px 70px rgba(9, 25, 74, 0.48),
+    inset 0 3px 0 rgba(255, 255, 255, 0.16);
+  transition:
+    opacity 0.22s ease,
+    transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1.12);
+}
+
+#homeHubOverlay.is-open .home-hub-backdrop {
+  opacity: 1;
+}
+
+#homeHubOverlay.is-open .home-hub-panel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#homeHubOverlay .home-hub-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 84px;
+  padding: 18px 72px 18px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 34, 94, 0.36);
+}
+
+#homeHubOverlay .home-hub-symbol {
+  display: grid;
+  flex: 0 0 48px;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #43eced, #6857e5 56%, #e94dac);
+  box-shadow: 0 8px 20px rgba(14, 26, 85, 0.28);
+  font-size: 23px;
+}
+
+#homeHubOverlay .home-hub-heading {
+  min-width: 0;
+}
+
+#homeHubOverlay .home-hub-heading small {
+  display: block;
+  margin-bottom: 3px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+}
+
+#homeHubOverlay .home-hub-heading h2 {
+  font-size: clamp(24px, 4vw, 36px);
+  line-height: 1;
+}
+
+#homeHubOverlay .home-hub-heading p {
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+#homeHubOverlay .home-hub-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(255, 255, 255, 0.42);
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(8, 35, 98, 0.76);
+  font-size: 25px;
+  line-height: 1;
+}
+
+#homeHubOverlay .home-hub-content {
+  max-height: calc(min(760px, 88dvh) - 84px);
+  overflow: auto;
+  padding: clamp(18px, 3vw, 28px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(85, 239, 255, 0.6) transparent;
+}
+
+#homeHubOverlay .home-hub-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.075);
+}
+
+#homeHubOverlay .home-hub-summary strong {
+  display: block;
+  font-size: 15px;
+}
+
+#homeHubOverlay .home-hub-summary span {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 11px;
+}
+
+#homeHubOverlay .home-hub-pill {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #163064;
+  background: linear-gradient(180deg, #fff18c, #ffc62f);
+  font-size: 11px;
+  font-weight: 1000;
+}
+
+#homeHubOverlay .home-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#homeHubOverlay .home-task-card,
+#homeHubOverlay .home-crew-card,
+#homeHubOverlay .home-tour-card {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.055));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08);
+}
+
+#homeHubOverlay .home-task-card::before,
+#homeHubOverlay .home-crew-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #43eef0, #ffc836, #d94de7);
+}
+
+#homeHubOverlay .home-task-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#homeHubOverlay .home-task-icon {
+  display: grid;
+  flex: 0 0 39px;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 20px;
+}
+
+#homeHubOverlay .home-task-reward {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #ffe886;
+  background: rgba(255, 201, 40, 0.12);
+  font-size: 9px;
+  font-weight: 950;
+}
+
+#homeHubOverlay .home-task-card h3,
+#homeHubOverlay .home-crew-card h3 {
+  margin-top: 13px;
+  font-size: 15px;
+}
+
+#homeHubOverlay .home-task-card p,
+#homeHubOverlay .home-crew-card p,
+#homeHubOverlay .home-tour-card p {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+#homeHubOverlay .home-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+#homeHubOverlay .home-progress-track {
+  flex: 1;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(7, 25, 72, 0.55);
+}
+
+#homeHubOverlay .home-progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #42eceb, #ffd137);
+  box-shadow: 0 0 10px rgba(64, 238, 236, 0.42);
+}
+
+#homeHubOverlay .home-progress-text {
+  min-width: 54px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  text-align: right;
+}
+
+#homeHubOverlay .home-crew-card {
+  text-align: center;
+}
+
+#homeHubOverlay .home-crew-avatar {
+  display: grid;
+  place-items: center;
+  width: 94px;
+  height: 94px;
+  margin: 4px auto 12px;
+  border: 3px solid rgba(255, 255, 255, 0.65);
+  border-radius: 30px;
+  color: #183467;
+  background: linear-gradient(145deg, #50f1ec, #ffe55d 52%, #ef63ad);
+  box-shadow: 0 12px 24px rgba(7, 23, 71, 0.28);
+  font-size: 29px;
+  font-weight: 1000;
+}
+
+#homeHubOverlay .home-crew-card.is-locked {
+  opacity: 0.68;
+  filter: saturate(0.68);
+}
+
+#homeHubOverlay .home-crew-card.is-selected {
+  border-color: rgba(83, 248, 240, 0.68);
+  box-shadow: 0 0 24px rgba(55, 239, 236, 0.2);
+}
+
+#homeHubOverlay .home-card-status {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #173466;
+  background: #8efff5;
+  font-size: 9px;
+  font-weight: 1000;
+}
+
+#homeHubOverlay .home-card-status.is-locked {
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#homeHubOverlay .home-hub-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 16px;
+  color: #173064;
+  background: linear-gradient(180deg, #ffe969, #ffbd28);
+  box-shadow: 0 6px 0 #c76a22;
+  font-size: 13px;
+  font-weight: 1000;
+}
+
+#homeHubOverlay .home-hub-action:disabled {
+  box-shadow: none;
+  opacity: 0.48;
+}
+
+#homeHubOverlay .home-tour-card {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 18px;
+  min-height: 260px;
+}
+
+#homeHubOverlay .home-tour-art {
+  position: relative;
+  min-height: 190px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.3), transparent 24%),
+    conic-gradient(from 25deg, #4cf1e9, #765ae7, #ef4faa, #ffc83c, #4cf1e9);
+  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.12);
+}
+
+#homeHubOverlay .home-tour-art::after {
+  content: "WORLD CIRCUIT";
+  position: absolute;
+  inset: 18px;
+  display: grid;
+  place-items: center;
+  border: 4px solid rgba(255, 255, 255, 0.66);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  #homeHubOverlay {
+    padding: 10px;
+  }
+
+  #homeHubOverlay .home-hub-panel {
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 23px;
+  }
+
+  #homeHubOverlay .home-hub-header {
+    min-height: 74px;
+    padding: 14px 60px 14px 15px;
+  }
+
+  #homeHubOverlay .home-hub-symbol {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  #homeHubOverlay .home-hub-heading p {
+    display: none;
+  }
+
+  #homeHubOverlay .home-hub-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #homeHubOverlay .home-tour-card {
+    grid-template-columns: 1fr;
+  }
+
+  #homeHubOverlay .home-tour-art {
+    min-height: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #homeHubOverlay *,
+  #homeHubOverlay *::before,
+  #homeHubOverlay *::after {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+  }
+}
