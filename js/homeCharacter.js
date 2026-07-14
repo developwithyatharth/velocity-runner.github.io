@@ -576,6 +576,40 @@
     boardRoot.add(
       underGlow
     );
+     /*
+ * Soft contact shadow gives the board visual weight.
+ */
+
+var boardShadow =
+  new THREE.Mesh(
+    new THREE.CircleGeometry(
+      1.75,
+      32
+    ),
+
+    new THREE.MeshBasicMaterial({
+      color: 0x153568,
+      transparent: true,
+      opacity: 0.2,
+      depthWrite: false
+    })
+  );
+
+boardShadow.rotation.x =
+  -Math.PI / 2;
+
+boardShadow.position.y =
+  -0.13;
+
+boardShadow.scale.set(
+  1.35,
+  0.5,
+  1
+);
+
+boardRoot.add(
+  boardShadow
+);
 
     boardGlowMaterials.push(
       underGlowMaterial
@@ -710,21 +744,21 @@
 
     var skinMaterial =
       createMaterial({
-        color: 0xe8a17e,
+        color: 0xd98c6c,
         roughness: 0.7
       });
 
 
     var skinHighlightMaterial =
       createMaterial({
-        color: 0xf6b693,
+        color: 0xeaaa86,
         roughness: 0.65
       });
 
 
     var jacketMaterial =
       createMaterial({
-        color: 0x1db9c6,
+        color: 0x159eb8,
         roughness: 0.5,
         metalness: 0.08
       });
@@ -732,21 +766,21 @@
 
     var jacketDarkMaterial =
       createMaterial({
-        color: 0x12658d,
+        color: 0x114f7c,
         roughness: 0.62
       });
 
 
     var shirtMaterial =
       createMaterial({
-        color: 0x20233e,
+        color: 0x181c35,
         roughness: 0.72
       });
 
 
     var pantsMaterial =
       createMaterial({
-        color: 0x25264b,
+        color: 0x1c2048,
         roughness: 0.74
       });
 
@@ -767,21 +801,21 @@
 
     var hairDarkMaterial =
       createMaterial({
-        color: 0x28204d,
+        color: 0x21183f,
         roughness: 0.58
       });
 
 
     var hairPurpleMaterial =
       createMaterial({
-        color: 0x7040ad,
+        color: 0x6335a4,
         roughness: 0.5
       });
 
 
     var hairMagentaMaterial =
       createMaterial({
-        color: 0xe84ca9,
+        color: 0xd73598,
         roughness: 0.48
       });
 
@@ -1394,7 +1428,41 @@
       1,
       0.65
     );
+/*
+ * Dynamic balancing pose.
+ * This avoids the stiff T-pose appearance.
+ */
 
+characterBody.rotation.y =
+  0.08;
+
+characterBody.rotation.x =
+  -0.035;
+
+characterBody.rotation.z =
+  -0.025;
+
+if (leftArm) {
+  leftArm.rotation.x =
+    -0.2;
+
+  leftArm.rotation.y =
+    -0.12;
+
+  leftArm.rotation.z =
+    0.34;
+}
+
+if (rightArm) {
+  rightArm.rotation.x =
+    0.14;
+
+  rightArm.rotation.y =
+    0.15;
+
+  rightArm.rotation.z =
+    -0.48;
+}
 
     return characterBody;
   }
@@ -1525,7 +1593,7 @@
      RESPONSIVE SCALE
   ======================================================= */
 
- function resizeCharacter() {
+function resizeCharacter() {
   if (!characterRoot) {
     return;
   }
@@ -1537,39 +1605,33 @@
     window.innerHeight;
 
   /*
-   * Desktop screens should display the character
-   * prominently, even when their height is around 700px.
+   * The runner is the main visual attraction.
+   * It should occupy roughly one-third of the screen height.
    */
 
   var characterScale =
     width < 760
-      ? 0.8
+      ? 0.94
       : width < 1100
-        ? 1
-        : 1.16;
+        ? 1.25
+        : 1.46;
 
-  if (height < 620) {
-    characterScale *= 0.88;
+  if (height < 650) {
+    characterScale *= 0.9;
   }
-
-  /*
-   * Move the character upward and closer to the camera.
-   * The previous negative Y position placed the character
-   * almost completely behind the Play button.
-   */
 
   var characterY =
     width < 760
-      ? 2.05
-      : 2.85;
+      ? 2.1
+      : 2.55;
 
   var characterZ =
     width < 760
-      ? 6.6
-      : 6.2;
+      ? 7
+      : 7.4;
 
-  if (height < 620) {
-    characterY = 2.35;
+  if (height < 650) {
+    characterY = 2.25;
   }
 
   characterRoot.scale.setScalar(
@@ -1581,11 +1643,6 @@
     characterY,
     characterZ
   );
-
-  /*
-   * The idle animation uses this value.
-   * It must be refreshed whenever the screen is resized.
-   */
 
   characterRoot.userData.baseY =
     characterY;
