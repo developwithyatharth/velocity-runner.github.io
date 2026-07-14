@@ -13,209 +13,570 @@
     content="Velocity Runner: Rise of Bharat — a futuristic 3D endless runner set in Neo Aryavarta."
   />
 
-  <meta
-    name="theme-color"
-    content="#050816"
-  />
+ <meta
+  name="description"
+  content="RunNova — a colorful 3D endless-runner adventure across an ever-changing world."
+/>
 
-  <title>
-    Velocity Runner: Rise of Bharat
-  </title>
-
+<title>RunNova — Run Beyond</title>
   <link
   rel="stylesheet"
-  href="style.css?v=visualV1"
+  href="style.css?v=h1a1"
 />
 </head>
 
 <body>
 
-  <!-- =====================================================
-       HOME SCREEN
-  ====================================================== -->
+ <!-- =====================================================
+     RUNNOVA HOME SCREEN
+====================================================== -->
 
-  <section
-    id="homeScreen"
-    class="screen active"
-    aria-label="Velocity Runner home screen"
+<section
+  id="homeScreen"
+  class="screen active runnova-home"
+  aria-label="RunNova home screen"
+>
+  <!-- THREE.JS HOME SCENE — USED IN PHASE H1B -->
+
+  <canvas
+    id="homeCanvas"
+    class="home-canvas"
+    aria-hidden="true"
+  ></canvas>
+
+
+  <!-- ANIMATED CSS SKY FALLBACK -->
+
+  <div
+    class="home-sky"
+    aria-hidden="true"
   >
-    <div
-      class="home-bg-glow"
-      aria-hidden="true"
-    ></div>
+    <div class="home-sun"></div>
 
-    <div class="hero-card">
+    <div class="home-cloud home-cloud-one"></div>
+    <div class="home-cloud home-cloud-two"></div>
+    <div class="home-cloud home-cloud-three"></div>
+
+    <div class="home-city-layer home-city-back"></div>
+    <div class="home-city-layer home-city-front"></div>
+
+    <div class="home-track home-track-left"></div>
+    <div class="home-track home-track-right"></div>
+
+    <span class="home-particle particle-one"></span>
+    <span class="home-particle particle-two"></span>
+    <span class="home-particle particle-three"></span>
+    <span class="home-particle particle-four"></span>
+    <span class="home-particle particle-five"></span>
+  </div>
+
+
+  <div class="runnova-home-shell">
+
+    <!-- TOP PLAYER AND CURRENCY BAR -->
+
+    <header class="runnova-topbar">
+
+      <button
+        type="button"
+        class="home-profile-card"
+        id="homeProfileBtn"
+        aria-label="Open runner profile"
+      >
+        <span
+          class="home-profile-avatar"
+          aria-hidden="true"
+        >
+          NR
+        </span>
+
+        <span class="home-profile-copy">
+          <strong id="homeProfileName">
+            NovaRider
+          </strong>
+
+          <small>
+            Level
+            <span id="homePlayerLevel">1</span>
+          </small>
+
+          <span class="home-level-track">
+            <span
+              id="homeLevelProgress"
+              class="home-level-progress"
+            ></span>
+          </span>
+        </span>
+      </button>
+
 
       <div
-        class="logo-orb"
+        class="home-currency-row"
+        aria-label="Player currencies"
+      >
+        <button
+          type="button"
+          class="home-currency home-currency-coins"
+          data-home-action="coins"
+          aria-label="Nova Coins"
+        >
+          <span class="currency-icon">N</span>
+
+          <strong id="homeNovaCoins">
+            0
+          </strong>
+
+          <span class="currency-plus">
+            +
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="home-currency home-currency-crystals"
+          data-home-action="crystals"
+          aria-label="Nova Crystals"
+        >
+          <span class="crystal-icon"></span>
+
+          <strong id="homeNovaCrystals">
+            0
+          </strong>
+
+          <span class="currency-plus">
+            +
+          </span>
+        </button>
+
+        <button
+          type="button"
+          id="homeSettingsBtn"
+          class="home-icon-button"
+          aria-label="Open settings"
+        >
+          <span aria-hidden="true">
+            ⚙
+          </span>
+        </button>
+      </div>
+
+    </header>
+
+
+    <!-- RUNNOVA LOGO -->
+
+    <div class="runnova-brand">
+
+      <div
+        class="runnova-brand-orbit"
+        aria-hidden="true"
+      >
+        <span></span>
+      </div>
+
+      <h1 aria-label="RunNova">
+        <span class="logo-run">
+          RUN
+        </span>
+
+        <span class="logo-nova">
+          NOVA
+        </span>
+      </h1>
+
+      <p>
+        RUN BEYOND
+      </p>
+
+    </div>
+
+
+    <!-- WORLD TOUR EVENT -->
+
+    <button
+      type="button"
+      id="homeWorldTourBtn"
+      class="home-event-card world-tour-card"
+      data-home-action="world-tour"
+    >
+      <span
+        class="event-globe"
+        aria-hidden="true"
+      >
+        <span class="event-globe-line"></span>
+      </span>
+
+      <span class="event-copy">
+        <small>SEASON EVENT</small>
+
+        <strong>
+          WORLD TOUR
+        </strong>
+
+        <span>
+          Coming soon
+        </span>
+      </span>
+    </button>
+
+
+    <!-- FREE REWARD -->
+
+    <button
+      type="button"
+      id="homeRewardBtn"
+      class="home-event-card reward-card"
+      data-home-action="reward"
+    >
+      <span
+        class="reward-chest"
+        aria-hidden="true"
+      >
+        <span class="reward-chest-lid"></span>
+        <span class="reward-chest-lock"></span>
+      </span>
+
+      <span class="event-copy">
+        <small>FREE REWARD</small>
+
+        <strong>
+          READY
+        </strong>
+
+        <span>
+          Tap to open
+        </span>
+      </span>
+    </button>
+
+
+    <!-- CENTRAL HERO PRESENTATION -->
+
+    <main
+      class="home-hero-stage"
+      aria-label="Selected RunNova character"
+    >
+      <div
+        class="home-stage-ring home-stage-ring-one"
         aria-hidden="true"
       ></div>
 
-      <p class="eyebrow">
-        Neo Aryavarta 2149
-      </p>
+      <div
+        class="home-stage-ring home-stage-ring-two"
+        aria-hidden="true"
+      ></div>
 
-      <h1>
-        Velocity Runner:
-        <br />
-        <span>Rise of Bharat</span>
-      </h1>
+      <!-- Temporary CSS runner.
+           Replaced by the true 3D model in H1C. -->
 
-      <h2>
-        When the world falls, Bharat still runs.
+      <div
+        class="home-runner-fallback"
+        aria-hidden="true"
+      >
+        <div class="fallback-runner-shadow"></div>
+
+        <div class="fallback-runner">
+          <span class="fallback-hair"></span>
+          <span class="fallback-head"></span>
+          <span class="fallback-body"></span>
+          <span class="fallback-arm fallback-arm-left"></span>
+          <span class="fallback-arm fallback-arm-right"></span>
+          <span class="fallback-leg fallback-leg-left"></span>
+          <span class="fallback-leg fallback-leg-right"></span>
+        </div>
+
+        <div class="fallback-board">
+          <span></span>
+        </div>
+
+        <div class="fallback-board-trail"></div>
+      </div>
+
+      <div class="home-hero-label">
+        <span>
+          SELECTED RUNNER
+        </span>
+
+        <strong>
+          NOVA
+        </strong>
+      </div>
+    </main>
+
+
+    <!-- LARGE HOME PLAY BUTTON -->
+
+    <button
+      id="homePlayBtn"
+      class="runnova-play-button"
+      type="button"
+      aria-haspopup="dialog"
+      aria-controls="homeSetupModal"
+    >
+      <span
+        class="play-button-icon"
+        aria-hidden="true"
+      ></span>
+
+      <span class="play-button-copy">
+        <strong>
+          PLAY
+        </strong>
+
+        <small>
+          Start your next run
+        </small>
+      </span>
+
+      <span
+        class="play-button-shine"
+        aria-hidden="true"
+      ></span>
+    </button>
+
+
+    <!-- SMALL UTILITY BUTTONS -->
+
+    <div class="home-utility-actions">
+
+      <button
+        type="button"
+        id="showHomeLeaderboardBtn"
+        class="home-utility-button"
+      >
+        <span aria-hidden="true">🏆</span>
+        Top Runs
+      </button>
+
+      <button
+        type="button"
+        id="tutorialHelpBtn"
+        class="home-utility-button"
+      >
+        <span aria-hidden="true">?</span>
+        How to Play
+      </button>
+
+    </div>
+
+
+    <!-- BOTTOM NAVIGATION — SHOP REMOVED -->
+
+    <nav
+      class="home-bottom-navigation"
+      aria-label="RunNova home navigation"
+    >
+      <button
+        type="button"
+        class="home-nav-button missions-nav-button"
+        data-home-action="missions"
+      >
+        <span
+          class="home-nav-icon mission-nav-icon"
+          aria-hidden="true"
+        >
+          ◎
+        </span>
+
+        <span>
+          MISSIONS
+        </span>
+
+        <i class="home-nav-notification">
+          !
+        </i>
+      </button>
+
+
+      <button
+        type="button"
+        class="home-nav-button daily-nav-button"
+        data-home-action="daily"
+      >
+        <span
+          class="home-nav-icon"
+          aria-hidden="true"
+        >
+          ★
+        </span>
+
+        <span>
+          DAILY CHALLENGE
+        </span>
+      </button>
+
+
+      <button
+        type="button"
+        class="home-nav-button crew-nav-button"
+        data-home-action="crew"
+      >
+        <span
+          class="home-nav-icon"
+          aria-hidden="true"
+        >
+          ◉
+        </span>
+
+        <span>
+          CREW
+        </span>
+      </button>
+    </nav>
+
+  </div>
+
+
+  <!-- PLAYER SETUP MODAL -->
+
+  <div
+    id="homeSetupModal"
+    class="home-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="homeSetupTitle"
+    aria-hidden="true"
+    hidden
+  >
+    <div
+      class="home-modal-backdrop"
+      data-close-home-modal
+    ></div>
+
+    <div class="home-setup-panel">
+
+      <button
+        type="button"
+        id="closeHomeSetupBtn"
+        class="home-modal-close"
+        aria-label="Close player setup"
+      >
+        ×
+      </button>
+
+      <div class="setup-panel-badge">
+        NOVA RUN
+      </div>
+
+      <h2 id="homeSetupTitle">
+        Ready to Run?
       </h2>
 
-      <p class="story">
-        Play as
-        <strong>Aarav Astra</strong>,
-        the last runner carrying the glowing
-        <strong>Surya Core</strong>
-        through an AI-controlled futuristic city
-        ruled by
-        <strong>Trinetra</strong>.
+      <p>
+        Choose your runner name and pace.
       </p>
 
 
-      <!-- PLAYER DETAILS -->
-
-      <div class="start-box">
+      <label
+        class="home-field"
+        for="runnerNameInput"
+      >
+        <span>
+          Runner name
+        </span>
 
         <input
           type="text"
           id="runnerNameInput"
           placeholder="Enter runner name"
-          aria-label="Runner name"
           maxlength="18"
           autocomplete="off"
-          spellcheck="false"
         />
+      </label>
 
-        <select
-          id="difficultySelect"
-          aria-label="Select game difficulty"
-        >
+
+      <label
+        class="home-field"
+        for="difficultySelect"
+      >
+        <span>
+          Run mode
+        </span>
+
+        <select id="difficultySelect">
           <option value="">
-            Select difficulty
+            Select run mode
           </option>
 
           <option value="easy">
-            Easy Runner
+            Easy Explorer
           </option>
 
           <option value="normal">
-            Normal Warrior
+            Nova Runner
           </option>
 
           <option value="hard">
-            Hard Legend
+            Hyper Legend
           </option>
         </select>
-
-        <button
-          id="startBtn"
-          type="button"
-          disabled
-        >
-          Start Run
-        </button>
-
-        <button
-          id="tutorialHelpBtn"
-          class="tutorial-help-button"
-          type="button"
-        >
-          How to Play
-        </button>
-
-      </div>
+      </label>
 
 
-      <!-- CONTROLS -->
+      <!-- This remains the real game-start button
+           used by main.js. -->
 
-      <div class="controls-info">
-
-        <p>
-          <strong>PC:</strong>
-          ← → Move |
-          Space Jump |
-          ↓ Slide |
-          Shift Dash |
-          F Shoot
-        </p>
-
-        <p>
-          <strong>Mobile:</strong>
-          Swipe left/right/up/down |
-          Double tap Dash |
-          Shoot button
-        </p>
-
-      </div>
-
-
-      <!-- FEATURES -->
-
-      <div class="feature-row">
-        <span>3 Lanes</span>
-        <span>Surya Dash</span>
-        <span>Drone Combat</span>
-        <span>Boss Events</span>
-        <span>Power-Ups</span>
-      </div>
-
-
-      <!-- HOME LEADERBOARD BUTTON -->
-
-      <div class="leaderboard-actions">
-
-        <button
-          type="button"
-          id="showHomeLeaderboardBtn"
-          class="leaderboard-show-btn"
-        >
-          🏆 Show Champions
-        </button>
-
-      </div>
-
-
-      <!-- HOME LEADERBOARD -->
-
-      <div
-        id="homeLeaderboardCard"
-        class="leaderboard-card leaderboard-hidden"
+      <button
+        id="startBtn"
+        class="home-confirm-play"
+        type="button"
+        disabled
       >
+        <span class="confirm-play-icon"></span>
 
-        <button
-          type="button"
-          id="closeHomeLeaderboardBtn"
-          class="leaderboard-close"
-          aria-label="Close home leaderboard"
-        >
-          ×
-        </button>
+        <span>
+          BEGIN RUN
+        </span>
+      </button>
 
-        <h3>
-          Local Champions
-        </h3>
-
-        <ol id="homeLeaderboard"></ol>
-
-        <button
-          type="button"
-          id="clearHomeLeaderboardBtn"
-          class="leaderboard-clear"
-        >
-          Clear Scores
-        </button>
-
-      </div>
+      <small class="setup-panel-note">
+        Your run starts after the first-time tutorial.
+      </small>
 
     </div>
+  </div>
 
-  </section>
+
+  <!-- HOME LEADERBOARD -->
+
+  <div
+    class="leaderboard-card leaderboard-hidden runnova-home-leaderboard"
+    id="homeLeaderboardCard"
+  >
+    <button
+      type="button"
+      class="leaderboard-close"
+      aria-label="Close leaderboard"
+    >
+      ×
+    </button>
+
+    <div class="home-leaderboard-heading">
+      <small>RUNNOVA RECORDS</small>
+      <h3>Top Runs</h3>
+    </div>
+
+    <ol id="homeLeaderboard"></ol>
+
+    <button
+      type="button"
+      class="leaderboard-clear"
+    >
+      Clear Scores
+    </button>
+  </div>
 
 
+  <!-- HOME MESSAGE TOAST -->
+
+  <div
+    id="homeActionToast"
+    class="home-action-toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+</section>
   <!-- =====================================================
        GAME SCREEN
   ====================================================== -->
