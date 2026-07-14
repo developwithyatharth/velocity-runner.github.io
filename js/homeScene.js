@@ -34,6 +34,7 @@
 
   var reducedMotion = false;
   var homeObserver = null;
+  var externalUpdaters = [];
 
 
   /* =======================================================
@@ -2062,6 +2063,53 @@
      RENDER LOOP
   ======================================================= */
 
+   /* =======================================================
+   EXTERNAL HOME-SCENE ANIMATIONS
+======================================================= */
+
+function updateExternalAnimations(
+  deltaTime,
+  elapsedTime
+) {
+  externalUpdaters
+    .slice()
+    .forEach(
+      function (updater) {
+        if (
+          typeof updater !==
+          "function"
+        ) {
+          return;
+        }
+
+        try {
+          updater(
+            deltaTime,
+            elapsedTime,
+            reducedMotion
+          );
+        } catch (error) {
+          console.error(
+            "RunNova home updater failed:",
+            error
+          );
+
+          var updaterIndex =
+            externalUpdaters.indexOf(
+              updater
+            );
+
+          if (updaterIndex !== -1) {
+            externalUpdaters.splice(
+              updaterIndex,
+              1
+            );
+          }
+        }
+      }
+    );
+}
+
   function renderFrame() {
     if (
       !running ||
@@ -2123,6 +2171,10 @@
         elapsedTime
       );
     }
+     updateExternalAnimations(
+  deltaTime,
+  elapsedTime
+);
 
 
     renderer.render(
@@ -2432,15 +2484,77 @@
 
 
     window.RunNovaHomeScene = {
-      start:
-        startScene,
+  start:
+    startScene,
 
-      stop:
-        stopScene,
+  stop:
+    stopScene,
 
-      resize:
-        resizeScene
-    };
+  resize:
+    resizeScene,
+
+  getScene:
+    function () {
+      return scene;
+    },
+
+  getWorld:
+    function () {
+      return world;
+    },
+
+  getCamera:
+    function () {
+      return camera;
+    },
+
+  getRenderer:
+    function () {
+      return renderer;
+    },
+
+  addUpdater:
+    function (updater) {
+      if (
+        typeof updater !==
+        "function" ||
+        externalUpdaters.indexOf(
+          updater
+        ) !== -1
+      ) {
+        return;
+      }
+
+      externalUpdaters.push(
+        updater
+      );
+    },
+
+  removeUpdater:
+    function (updater) {
+      var updaterIndex =
+        externalUpdaters.indexOf(
+          updater
+        );
+
+      if (updaterIndex !== -1) {
+        externalUpdaters.splice(
+          updaterIndex,
+          1
+        );
+      }
+    },
+
+  isReducedMotion:
+    function () {
+      return reducedMotion;
+    }
+};
+     window.dispatchEvent(
+  new CustomEvent(
+    "runnova-home-scene-ready"
+  )
+);
 
 
     console.log(
