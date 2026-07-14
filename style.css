@@ -5319,3 +5319,877 @@ body.tutorial-open {
     right: 7px;
   }
 }
+/* =========================================================
+   RUNNOVA H1E — PREMIUM MOTION
+========================================================= */
+
+
+/* =========================================================
+   ENTRANCE SEQUENCE
+========================================================= */
+
+#homeScreen.home-motion-enabled
+.runnova-topbar,
+
+#homeScreen.home-motion-enabled
+.runnova-brand,
+
+#homeScreen.home-motion-enabled
+.world-tour-card,
+
+#homeScreen.home-motion-enabled
+.reward-card,
+
+#homeScreen.home-motion-enabled
+.home-hero-stage,
+
+#homeScreen.home-motion-enabled
+.runnova-play-button,
+
+#homeScreen.home-motion-enabled
+.home-utility-actions,
+
+#homeScreen.home-motion-enabled
+.home-bottom-navigation {
+  opacity: 0;
+
+  transition:
+    opacity 0.55s ease,
+    translate 0.62s
+      cubic-bezier(
+        0.18,
+        0.82,
+        0.22,
+        1
+      ),
+    scale 0.62s
+      cubic-bezier(
+        0.18,
+        0.82,
+        0.22,
+        1
+      ),
+    filter 0.4s ease;
+
+  transition-delay:
+    var(
+      --rn-enter-delay,
+      0ms
+    );
+}
+
+
+#homeScreen.home-motion-enabled
+.runnova-topbar {
+  translate: 0 -22px;
+}
+
+
+#homeScreen.home-motion-enabled
+.runnova-brand {
+  translate: -50% -18px;
+
+  scale: 0.94;
+}
+
+
+#homeScreen.home-motion-enabled
+.world-tour-card {
+  translate: -28px 0;
+}
+
+
+#homeScreen.home-motion-enabled
+.reward-card {
+  translate: 28px 0;
+}
+
+
+#homeScreen.home-motion-enabled
+.home-hero-stage {
+  translate: -50% 22px;
+
+  scale: 0.96;
+}
+
+
+#homeScreen.home-motion-enabled
+.runnova-play-button {
+  translate: -50% 24px;
+
+  scale: 0.95;
+}
+
+
+#homeScreen.home-motion-enabled
+.home-utility-actions {
+  translate: 22px 0;
+}
+
+
+#homeScreen.home-motion-enabled
+.home-bottom-navigation {
+  translate: 0 30px;
+
+  scale: 0.97;
+}
+
+
+#homeScreen.home-motion-ready
+.runnova-topbar,
+
+#homeScreen.home-motion-ready
+.world-tour-card,
+
+#homeScreen.home-motion-ready
+.reward-card,
+
+#homeScreen.home-motion-ready
+.home-utility-actions,
+
+#homeScreen.home-motion-ready
+.home-bottom-navigation {
+  opacity: 1;
+
+  translate: 0 0;
+
+  scale: 1;
+}
+
+
+#homeScreen.home-motion-ready
+.runnova-brand {
+  opacity: 1;
+
+  translate: -50% 0;
+
+  scale: 1;
+}
+
+
+#homeScreen.home-motion-ready
+.home-hero-stage {
+  opacity: 1;
+
+  translate: -50% 0;
+
+  scale: 1;
+}
+
+
+#homeScreen.home-motion-ready
+.runnova-play-button {
+  opacity: 1;
+
+  translate: -50% 0;
+
+  scale: 1;
+}
+
+
+/* =========================================================
+   POINTER-REACTIVE LIGHTING
+========================================================= */
+
+.home-name-card,
+.home-level-card,
+.home-event-card,
+.home-currency,
+.home-icon-button,
+.home-nav-button,
+.home-utility-button,
+.runnova-play-button {
+  --rn-light-x: 50%;
+  --rn-light-y: 50%;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+
+.home-name-card::after,
+.home-level-card::after,
+.home-event-card::after,
+.home-currency::after,
+.home-icon-button::after,
+.home-nav-button::after,
+.home-utility-button::after,
+.runnova-play-button::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 1;
+
+  border-radius: inherit;
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at
+      var(--rn-light-x)
+      var(--rn-light-y),
+
+      rgba(255, 255, 255, 0.38),
+
+      rgba(255, 255, 255, 0.1)
+        22%,
+
+      transparent
+        52%
+    );
+
+  transition:
+    opacity 0.2s ease;
+}
+
+
+.home-name-card:hover::after,
+.home-level-card:hover::after,
+.home-event-card:hover::after,
+.home-currency:hover::after,
+.home-icon-button:hover::after,
+.home-nav-button:hover::after,
+.home-utility-button:hover::after,
+.runnova-play-button:hover::after {
+  opacity: 1;
+}
+
+
+.home-name-card > *,
+.home-level-card > *,
+.home-event-card > *,
+.home-currency > *,
+.home-icon-button > *,
+.home-nav-button > *,
+.home-utility-button > *,
+.runnova-play-button > * {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+/* =========================================================
+   CLICK RIPPLE
+========================================================= */
+
+.rn-click-ripple {
+  position: absolute;
+
+  z-index: 0;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.48
+    );
+
+  transform: scale(0);
+
+  animation:
+    rnClickRipple
+    0.62s ease-out forwards;
+}
+
+
+@keyframes rnClickRipple {
+  0% {
+    transform: scale(0);
+
+    opacity: 0.82;
+  }
+
+  100% {
+    transform: scale(1);
+
+    opacity: 0;
+  }
+}
+
+
+.rn-button-pressed {
+  filter:
+    brightness(1.08)
+    saturate(1.05);
+}
+
+
+/* =========================================================
+   LOGO ANIMATION
+========================================================= */
+
+#homeScreen.home-motion-ready
+.runnova-brand {
+  animation:
+    rnPremiumLogoFloat
+    5.5s ease-in-out infinite;
+}
+
+
+@keyframes rnPremiumLogoFloat {
+  0%,
+  100% {
+    translate: -50% 0;
+  }
+
+  50% {
+    translate: -50% -7px;
+  }
+}
+
+
+.runnova-brand h1 {
+  animation:
+    rnLogoDepthPulse
+    4.4s ease-in-out infinite;
+}
+
+
+@keyframes rnLogoDepthPulse {
+  0%,
+  100% {
+    filter:
+      drop-shadow(
+        0 9px 0 #16205b
+      )
+      drop-shadow(
+        0 15px 0 #712ca1
+      )
+      brightness(1);
+  }
+
+  50% {
+    filter:
+      drop-shadow(
+        0 10px 0 #16205b
+      )
+      drop-shadow(
+        0 17px 0 #712ca1
+      )
+      drop-shadow(
+        0 0 13px
+        rgba(
+          85,
+          240,
+          255,
+          0.38
+        )
+      )
+      brightness(1.04);
+  }
+}
+
+
+/* =========================================================
+   EVENT CARDS
+========================================================= */
+
+#homeScreen.home-motion-ready
+.world-tour-card {
+  animation:
+    rnEventCardFloatLeft
+    4.8s ease-in-out infinite;
+}
+
+
+#homeScreen.home-motion-ready
+.reward-card {
+  animation:
+    rnEventCardFloatRight
+    4.4s ease-in-out
+    -1.2s infinite;
+}
+
+
+@keyframes rnEventCardFloatLeft {
+  0%,
+  100% {
+    translate: 0 0;
+
+    rotate: 0deg;
+  }
+
+  50% {
+    translate: 0 -6px;
+
+    rotate: -0.5deg;
+  }
+}
+
+
+@keyframes rnEventCardFloatRight {
+  0%,
+  100% {
+    translate: 0 0;
+
+    rotate: 0deg;
+  }
+
+  50% {
+    translate: 0 -7px;
+
+    rotate: 0.5deg;
+  }
+}
+
+
+.reward-chest {
+  animation:
+    rnRewardChestPulse
+    2.8s ease-in-out infinite;
+}
+
+
+.reward-chest-lid {
+  transform-origin:
+    center bottom;
+
+  animation:
+    rnRewardLidBounce
+    3.2s ease-in-out infinite;
+}
+
+
+@keyframes rnRewardChestPulse {
+  0%,
+  100% {
+    filter:
+      drop-shadow(
+        0 0 4px
+        rgba(
+          91,
+          239,
+          255,
+          0.35
+        )
+      );
+  }
+
+  50% {
+    filter:
+      drop-shadow(
+        0 0 13px
+        rgba(
+          91,
+          239,
+          255,
+          0.82
+        )
+      );
+  }
+}
+
+
+@keyframes rnRewardLidBounce {
+  0%,
+  72%,
+  100% {
+    translate: 0 0;
+
+    rotate: 0deg;
+  }
+
+  79% {
+    translate: 0 -4px;
+
+    rotate: -3deg;
+  }
+
+  86% {
+    translate: 0 -1px;
+
+    rotate: 2deg;
+  }
+}
+
+
+/* =========================================================
+   HERO FOCUS
+========================================================= */
+
+.home-hero-stage::after {
+  content: "";
+
+  position: absolute;
+  top: 59%;
+  left: 50%;
+
+  z-index: -1;
+
+  width:
+    min(
+      520px,
+      54vw
+    );
+
+  height: 120px;
+
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  pointer-events: none;
+
+  opacity: 0.62;
+
+  background:
+    radial-gradient(
+      ellipse,
+
+      rgba(
+        63,
+        246,
+        241,
+        0.34
+      ),
+
+      rgba(
+        94,
+        99,
+        235,
+        0.13
+      )
+        46%,
+
+      transparent
+        72%
+    );
+
+  filter: blur(12px);
+
+  animation:
+    rnHeroGlowPulse
+    3.5s ease-in-out infinite;
+}
+
+
+@keyframes rnHeroGlowPulse {
+  0%,
+  100% {
+    scale: 0.92;
+
+    opacity: 0.48;
+  }
+
+  50% {
+    scale: 1.08;
+
+    opacity: 0.76;
+  }
+}
+
+
+/* =========================================================
+   PLAY BUTTON
+========================================================= */
+
+#homeScreen.home-motion-ready
+.runnova-play-button {
+  animation:
+    rnPlayAttention
+    3.3s ease-in-out infinite;
+}
+
+
+@keyframes rnPlayAttention {
+  0%,
+  100% {
+    translate: -50% 0;
+
+    box-shadow:
+      0 8px 0 #ca671f,
+      0 18px 32px
+        rgba(
+          24,
+          52,
+          124,
+          0.35
+        ),
+      inset 0 4px 0
+        rgba(
+          255,
+          255,
+          255,
+          0.6
+        );
+  }
+
+  50% {
+    translate: -50% -3px;
+
+    box-shadow:
+      0 10px 0 #ca671f,
+      0 22px 38px
+        rgba(
+          24,
+          52,
+          124,
+          0.4
+        ),
+      0 0 24px
+        rgba(
+          255,
+          218,
+          45,
+          0.45
+        ),
+      inset 0 4px 0
+        rgba(
+          255,
+          255,
+          255,
+          0.68
+        );
+  }
+}
+
+
+.runnova-play-button:hover {
+  translate: -50% -5px;
+
+  transform: scale(1.025);
+
+  animation-play-state: paused;
+}
+
+
+.runnova-play-button:active {
+  translate: -50% 4px;
+
+  transform: scale(0.985);
+}
+
+
+/* =========================================================
+   NAVIGATION MICRO-MOTION
+========================================================= */
+
+.home-nav-icon {
+  transition:
+    transform 0.22s
+      cubic-bezier(
+        0.2,
+        0.8,
+        0.2,
+        1.2
+      ),
+    filter 0.22s ease;
+}
+
+
+.home-nav-button:hover
+.home-nav-icon {
+  transform:
+    translateY(-3px)
+    scale(1.1)
+    rotate(-3deg);
+
+  filter:
+    drop-shadow(
+      0 5px 6px
+      rgba(
+        22,
+        42,
+        112,
+        0.28
+      )
+    );
+}
+
+
+.daily-nav-button:hover
+.home-nav-icon {
+  transform:
+    translateY(-3px)
+    scale(1.12)
+    rotate(7deg);
+}
+
+
+.crew-nav-button:hover
+.home-nav-icon {
+  transform:
+    translateY(-3px)
+    scale(1.1)
+    rotate(3deg);
+}
+
+
+.home-nav-notification {
+  animation:
+    rnNotificationBounce
+    2.4s ease-in-out infinite;
+}
+
+
+@keyframes rnNotificationBounce {
+  0%,
+  74%,
+  100% {
+    transform: scale(1);
+  }
+
+  82% {
+    transform: scale(1.18);
+  }
+
+  90% {
+    transform: scale(0.94);
+  }
+}
+
+
+/* =========================================================
+   MODAL FOCUS MODE
+========================================================= */
+
+.home-canvas,
+.home-sky,
+.runnova-home-shell {
+  transition:
+    filter 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+
+#homeScreen.home-modal-active
+.home-canvas {
+  filter:
+    saturate(0.78)
+    brightness(0.68)
+    blur(2px);
+
+  transform: scale(1.015);
+}
+
+
+#homeScreen.home-modal-active
+.home-sky {
+  filter:
+    saturate(0.76)
+    brightness(0.7);
+}
+
+
+#homeScreen.home-modal-active
+.runnova-home-shell {
+  filter:
+    saturate(0.76)
+    brightness(0.76);
+}
+
+
+/*
+ * Modals remain completely sharp because they sit outside
+ * the home shell and above the filtered background.
+ */
+
+#homeScreen.home-modal-active
+.home-modal {
+  filter: none;
+}
+
+
+/* =========================================================
+   MOBILE MOTION
+========================================================= */
+
+@media (max-width: 760px) {
+  #homeScreen.home-motion-enabled
+  .runnova-brand {
+    translate: -50% -13px;
+  }
+
+  #homeScreen.home-motion-ready
+  .runnova-brand {
+    translate: -50% 0;
+  }
+
+  .home-hero-stage::after {
+    width: 88vw;
+
+    height: 90px;
+  }
+
+  .home-event-card {
+    animation-duration:
+      5.4s !important;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  #homeScreen.home-motion-enabled
+  .runnova-topbar,
+
+  #homeScreen.home-motion-enabled
+  .runnova-brand,
+
+  #homeScreen.home-motion-enabled
+  .world-tour-card,
+
+  #homeScreen.home-motion-enabled
+  .reward-card,
+
+  #homeScreen.home-motion-enabled
+  .home-hero-stage,
+
+  #homeScreen.home-motion-enabled
+  .runnova-play-button,
+
+  #homeScreen.home-motion-enabled
+  .home-utility-actions,
+
+  #homeScreen.home-motion-enabled
+  .home-bottom-navigation {
+    opacity: 1;
+
+    translate: 0 0;
+
+    scale: 1;
+
+    animation: none !important;
+
+    transition: none !important;
+  }
+
+  #homeScreen.home-motion-enabled
+  .runnova-brand,
+
+  #homeScreen.home-motion-enabled
+  .home-hero-stage,
+
+  #homeScreen.home-motion-enabled
+  .runnova-play-button {
+    translate: -50% 0;
+  }
+
+  .reward-chest,
+  .reward-chest-lid,
+  .home-nav-notification,
+  .home-hero-stage::after,
+  .runnova-brand h1 {
+    animation: none !important;
+  }
+}
